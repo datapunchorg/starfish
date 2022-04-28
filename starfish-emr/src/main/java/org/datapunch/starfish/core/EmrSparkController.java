@@ -68,50 +68,42 @@ public class EmrSparkController {
         AddJobFlowStepsRequest addJobFlowStepsRequest = new AddJobFlowStepsRequest();
         addJobFlowStepsRequest.withJobFlowId(clusterFqid.getClusterId())
                 .withSteps(sparkStep);
-        AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
-        try {
-            AddJobFlowStepsResult addJobFlowStepsResult = emr.addJobFlowSteps(addJobFlowStepsRequest);
-            List<String> stepIds = addJobFlowStepsResult.getStepIds();
-            if (stepIds.size() != 1) {
-                throw new RuntimeException(String.format(
-                        "Failed to submit Spark application to cluster %s, expecting 1 step id in the result, but got %s",
-                        clusterFqid, stepIds.size()));
-            }
-            SubmitSparkApplicationResponse response = new SubmitSparkApplicationResponse();
-            response.setClusterFqid(clusterFqid.toString());
-            response.setSubmissionId(stepIds.get(0));
-            return response;
-        } finally {
-            emr.shutdown();
+        AmazonElasticMapReduce emr = EmrHelper.getEmr(clusterFqid.getRegion());
+        AddJobFlowStepsResult addJobFlowStepsResult = emr.addJobFlowSteps(addJobFlowStepsRequest);
+        List<String> stepIds = addJobFlowStepsResult.getStepIds();
+        if (stepIds.size() != 1) {
+            throw new RuntimeException(String.format(
+                    "Failed to submit Spark application to cluster %s, expecting 1 step id in the result, but got %s",
+                    clusterFqid, stepIds.size()));
         }
+        SubmitSparkApplicationResponse response = new SubmitSparkApplicationResponse();
+        response.setClusterFqid(clusterFqid.toString());
+        response.setSubmissionId(stepIds.get(0));
+        return response;
     }
 
     public GetSparkApplicationResponse getSparkApplication(String clusterFqidStr, String submissionId) {
         EmrClusterFqid clusterFqid = new EmrClusterFqid(clusterFqidStr);
-        AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
-        try {
-            DescribeStepRequest describeStepRequest = new DescribeStepRequest();
-            describeStepRequest.setClusterId(clusterFqid.getClusterId());
-            describeStepRequest.setStepId(submissionId);
-            DescribeStepResult describeStepResult = emr.describeStep(describeStepRequest);
-            String state = describeStepResult.getStep().getStatus().getState();
-            String errorMessage = null;
-            if (describeStepResult.getStep().getStatus().getFailureDetails() != null) {
-                errorMessage = describeStepResult.getStep().getStatus().getFailureDetails().toString();
-            }
-            SparkApplicationState sparkApplicationState = new SparkApplicationState();
-            sparkApplicationState.setState(state);
-            sparkApplicationState.setErrorMessage(errorMessage);
-            SparkApplicationStatus sparkApplicationStatus = new SparkApplicationStatus();
-            sparkApplicationStatus.setApplicationState(sparkApplicationState);
-            GetSparkApplicationResponse response = new GetSparkApplicationResponse();
-            response.setClusterFqid(clusterFqidStr);
-            response.setSubmissionId(submissionId);
-            response.setStatus(sparkApplicationStatus);
-            return response;
-        } finally {
-            emr.shutdown();
+        AmazonElasticMapReduce emr = EmrHelper.getEmr(clusterFqid.getRegion());
+        DescribeStepRequest describeStepRequest = new DescribeStepRequest();
+        describeStepRequest.setClusterId(clusterFqid.getClusterId());
+        describeStepRequest.setStepId(submissionId);
+        DescribeStepResult describeStepResult = emr.describeStep(describeStepRequest);
+        String state = describeStepResult.getStep().getStatus().getState();
+        String errorMessage = null;
+        if (describeStepResult.getStep().getStatus().getFailureDetails() != null) {
+            errorMessage = describeStepResult.getStep().getStatus().getFailureDetails().toString();
         }
+        SparkApplicationState sparkApplicationState = new SparkApplicationState();
+        sparkApplicationState.setState(state);
+        sparkApplicationState.setErrorMessage(errorMessage);
+        SparkApplicationStatus sparkApplicationStatus = new SparkApplicationStatus();
+        sparkApplicationStatus.setApplicationState(sparkApplicationState);
+        GetSparkApplicationResponse response = new GetSparkApplicationResponse();
+        response.setClusterFqid(clusterFqidStr);
+        response.setSubmissionId(submissionId);
+        response.setStatus(sparkApplicationStatus);
+        return response;
     }
 
     public void waitSparkApplicationFinished(String clusterFqidStr, String submissionId, long maxWaitMillis, long sleepIntervalMillis) {
@@ -143,15 +135,5 @@ public class EmrSparkController {
         throw new RuntimeException(String.format(
                 "Spark application %s (cluster: %s) not finished (state: %s) after waiting %s milliseconds",
                 submissionId, clusterFqidStr, state, maxWaitMillis));
-    }
-
-    // TODO move getEmr to helper function
-    private AmazonElasticMapReduce getEmr(String region) {
-        DefaultAWSCredentialsProviderChain defaultAWSCredentialsProviderChain = new DefaultAWSCredentialsProviderChain();
-        // create an EMR client using the credentials and region specified in order to create the cluster
-        return AmazonElasticMapReduceClientBuilder.standard()
-                .withCredentials(defaultAWSCredentialsProviderChain)
-                .withRegion(region)
-                .build();
     }
 }

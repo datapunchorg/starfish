@@ -81,65 +81,53 @@ public class EmrClusterController {
         }
 
         // create the cluster
-        AmazonElasticMapReduce emr = getEmr(region);
-        try {
-            RunJobFlowRequest runJobFlowRequest = new RunJobFlowRequest()
-                    .withName(clusterName)
-                    .withReleaseLabel(releaseLabel)
-                    .withSteps(enabledebugging)
-                    .withApplications(spark)
-                    .withLogUri(logUri)
-                    .withServiceRole(serviceRoleName)
-                    .withJobFlowRole(jobFlowRoleName)
-                    .withInstances(new JobFlowInstancesConfig()
-                            .withEc2SubnetId(subnetId)
-                            // .withEc2KeyName("myEc2Key")
-                            .withInstanceCount(instanceCount)
-                            .withKeepJobFlowAliveWhenNoSteps(true)
-                            .withMasterInstanceType(masterInstanceType)
-                            .withSlaveInstanceType(slaveInstanceType));
-            RunJobFlowResult runJobFlowResult = emr.runJobFlow(runJobFlowRequest);
-            CreateClusterResponse response = new CreateClusterResponse();
-            response.setClusterFqid(String.format("%s-%s", region, runJobFlowResult.getJobFlowId()));
-            return response;
-        } finally {
-            emr.shutdown();
-        }
+        AmazonElasticMapReduce emr = EmrHelper.getEmr(region);
+        RunJobFlowRequest runJobFlowRequest = new RunJobFlowRequest()
+                .withName(clusterName)
+                .withReleaseLabel(releaseLabel)
+                .withSteps(enabledebugging)
+                .withApplications(spark)
+                .withLogUri(logUri)
+                .withServiceRole(serviceRoleName)
+                .withJobFlowRole(jobFlowRoleName)
+                .withInstances(new JobFlowInstancesConfig()
+                        .withEc2SubnetId(subnetId)
+                        // .withEc2KeyName("myEc2Key")
+                        .withInstanceCount(instanceCount)
+                        .withKeepJobFlowAliveWhenNoSteps(true)
+                        .withMasterInstanceType(masterInstanceType)
+                        .withSlaveInstanceType(slaveInstanceType));
+        RunJobFlowResult runJobFlowResult = emr.runJobFlow(runJobFlowRequest);
+        CreateClusterResponse response = new CreateClusterResponse();
+        response.setClusterFqid(String.format("%s-%s", region, runJobFlowResult.getJobFlowId()));
+        return response;
     }
 
     public GetClusterResponse getCluster(String clusterFqidStr) {
         EmrClusterFqid clusterFqid = new EmrClusterFqid(clusterFqidStr);
-        AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
-        try {
-            DescribeClusterRequest describeClusterRequest = new DescribeClusterRequest();
-            describeClusterRequest.setClusterId(clusterFqid.getClusterId());
-            DescribeClusterResult describeClusterResult = emr.describeCluster(describeClusterRequest);
-            org.datapunch.starfish.api.emr.ClusterStatus status = new ClusterStatus();
-            status.setState(describeClusterResult.getCluster().getStatus().getState());
-            status.setCode(describeClusterResult.getCluster().getStatus().getStateChangeReason().getCode());
-            status.setInformation(describeClusterResult.getCluster().getStatus().getStateChangeReason().getMessage());
-            GetClusterResponse response = new GetClusterResponse();
-            response.setClusterFqid(clusterFqidStr);
-            response.setStatus(status);
-            return response;
-        } finally {
-            emr.shutdown();
-        }
+        AmazonElasticMapReduce emr = EmrHelper.getEmr(clusterFqid.getRegion());
+        DescribeClusterRequest describeClusterRequest = new DescribeClusterRequest();
+        describeClusterRequest.setClusterId(clusterFqid.getClusterId());
+        DescribeClusterResult describeClusterResult = emr.describeCluster(describeClusterRequest);
+        org.datapunch.starfish.api.emr.ClusterStatus status = new ClusterStatus();
+        status.setState(describeClusterResult.getCluster().getStatus().getState());
+        status.setCode(describeClusterResult.getCluster().getStatus().getStateChangeReason().getCode());
+        status.setInformation(describeClusterResult.getCluster().getStatus().getStateChangeReason().getMessage());
+        GetClusterResponse response = new GetClusterResponse();
+        response.setClusterFqid(clusterFqidStr);
+        response.setStatus(status);
+        return response;
     }
 
     public DeleteClusterResponse deleteCluster(String clusterFqidStr) {
         EmrClusterFqid clusterFqid = new EmrClusterFqid(clusterFqidStr);
-        AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
-        try {
-            TerminateJobFlowsRequest terminateJobFlowsRequest = new TerminateJobFlowsRequest();
-            terminateJobFlowsRequest.setJobFlowIds(Arrays.asList(clusterFqid.getClusterId()));
-            emr.terminateJobFlows(terminateJobFlowsRequest);
-            DeleteClusterResponse response = new DeleteClusterResponse();
-            response.setClusterFqid(clusterFqidStr);
-            return response;
-        } finally {
-            emr.shutdown();
-        }
+        AmazonElasticMapReduce emr = EmrHelper.getEmr(clusterFqid.getRegion());
+        TerminateJobFlowsRequest terminateJobFlowsRequest = new TerminateJobFlowsRequest();
+        terminateJobFlowsRequest.setJobFlowIds(Arrays.asList(clusterFqid.getClusterId()));
+        emr.terminateJobFlows(terminateJobFlowsRequest);
+        DeleteClusterResponse response = new DeleteClusterResponse();
+        response.setClusterFqid(clusterFqidStr);
+        return response;
     }
 
     public void waitClusterReadyOrTerminated(String clusterFqidStr, long maxWaitMillis, long sleepIntervalMillis) {
@@ -169,14 +157,5 @@ public class EmrClusterController {
         throw new RuntimeException(String.format(
                 "Cluster %s not ready or terminated (state: %s) after waiting %s milliseconds",
                 clusterFqidStr, state, maxWaitMillis));
-    }
-
-    private AmazonElasticMapReduce getEmr(String region) {
-        DefaultAWSCredentialsProviderChain defaultAWSCredentialsProviderChain = new DefaultAWSCredentialsProviderChain();
-        // create an EMR client using the credentials and region specified in order to create the cluster
-        return AmazonElasticMapReduceClientBuilder.standard()
-                .withCredentials(defaultAWSCredentialsProviderChain)
-                .withRegion(region)
-                .build();
     }
 }
