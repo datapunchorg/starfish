@@ -27,8 +27,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
     public void run(final ServerConfiguration configuration,
                     final Environment environment) {
         final TemplateHealthCheck healthCheck =
-                new TemplateHealthCheck(configuration.getTemplate());
-        environment.healthChecks().register("template", healthCheck);
+                new TemplateHealthCheck("TODO");
+        environment.healthChecks().register("check01", healthCheck);
 
         final ClusterResource clusterResource = new ClusterResource(configuration.getEmrClusterConfiguration());
         final SparkResource sparkResource = new SparkResource(configuration.getSparkConfiguration());

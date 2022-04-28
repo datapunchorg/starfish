@@ -1,7 +1,4 @@
 
-template: Hello, %s!
-defaultName: Stranger
-
 server:
   type: simple
   applicationContextPath: /starfish/v1
@@ -13,4 +10,4 @@ server:
 logging:
   level: INFO
   loggers:
-    datapunch.org: DEBUG
+    org.datapunch: INFO

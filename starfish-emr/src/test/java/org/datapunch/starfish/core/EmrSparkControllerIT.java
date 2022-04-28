@@ -80,7 +80,7 @@ public class EmrSparkControllerIT {
             Assert.assertNotNull(getSparkApplicationResponse.getSubmissionId());
             Assert.assertNotNull(getSparkApplicationResponse.getStatus());
 
-            sparkController.waitSparkApplicationFinished(clusterFqid, submitSparkApplicationResponse.getSubmissionId(), 10*60*1000, 1000);
+            sparkController.waitSparkApplicationFinished(clusterFqid, submitSparkApplicationResponse.getSubmissionId(), 10*60*1000, 10000);
 
             getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
             Assert.assertEquals(getSparkApplicationResponse.getStatus().getApplicationState().getState(), "COMPLETED");
@@ -106,7 +106,7 @@ public class EmrSparkControllerIT {
             Assert.assertNotNull(getSparkApplicationResponse.getSubmissionId());
             Assert.assertNotNull(getSparkApplicationResponse.getStatus());
 
-            sparkController.waitSparkApplicationFinished(clusterFqid, submitSparkApplicationResponse.getSubmissionId(), 10*60*1000, 1000);
+            sparkController.waitSparkApplicationFinished(clusterFqid, submitSparkApplicationResponse.getSubmissionId(), 10*60*1000, 10000);
 
             getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
             Assert.assertEquals(getSparkApplicationResponse.getStatus().getApplicationState().getState(), "COMPLETED");

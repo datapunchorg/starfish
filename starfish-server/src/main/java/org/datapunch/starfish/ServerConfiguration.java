@@ -8,51 +8,50 @@ import org.datapunch.starfish.core.EmrSparkConfiguration;
 import javax.validation.constraints.NotEmpty;
 
 public class ServerConfiguration extends Configuration {
-    @NotEmpty
-    private String template;
 
-    @NotEmpty
-    private String defaultName = "Stranger";
+    private String dbConnectionString;
+    private String dbUser;
+    private String dbPassword;
 
     private EmrClusterConfiguration emrClusterConfiguration;
     private EmrSparkConfiguration sparkConfiguration;
 
-    @JsonProperty
-    public String getTemplate() {
-        return template;
+    public String getDbConnectionString() {
+        return dbConnectionString;
     }
 
-    @JsonProperty
-    public void setTemplate(String template) {
-        this.template = template;
+    public void setDbConnectionString(String dbConnectionString) {
+        this.dbConnectionString = dbConnectionString;
     }
 
-    @JsonProperty
-    public String getDefaultName() {
-        return defaultName;
+    public String getDbUser() {
+        return dbUser;
     }
 
-    @JsonProperty
-    public void setDefaultName(String name) {
-        this.defaultName = name;
+    public void setDbUser(String dbUser) {
+        this.dbUser = dbUser;
     }
 
-    @JsonProperty
+    public String getDbPassword() {
+        return dbPassword;
+    }
+
+    public void setDbPassword(String dbPassword) {
+        this.dbPassword = dbPassword;
+    }
+
     public EmrClusterConfiguration getEmrClusterConfiguration() {
         return emrClusterConfiguration;
     }
 
-    @JsonProperty
     public void setEmrClusterConfiguration(EmrClusterConfiguration emrClusterConfiguration) {
         this.emrClusterConfiguration = emrClusterConfiguration;
     }
 
-    @JsonProperty
     public EmrSparkConfiguration getSparkConfiguration() {
         return sparkConfiguration;
     }
 
-    @JsonProperty
     public void setSparkConfiguration(EmrSparkConfiguration sparkConfiguration) {
         this.sparkConfiguration = sparkConfiguration;
     }
