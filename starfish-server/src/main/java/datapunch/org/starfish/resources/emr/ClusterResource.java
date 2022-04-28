@@ -3,10 +3,10 @@ package datapunch.org.starfish.resources.emr;
 import com.codahale.metrics.annotation.Timed;
 import datapunch.org.starfish.api.emr.CreateClusterRequest;
 import datapunch.org.starfish.api.emr.CreateClusterResponse;
-import datapunch.org.starfish.core.EmrClusterConfiguration;
-import datapunch.org.starfish.core.EmrClusterController;
 import datapunch.org.starfish.api.emr.DeleteClusterResponse;
 import datapunch.org.starfish.api.emr.GetClusterResponse;
+import datapunch.org.starfish.core.EmrClusterConfiguration;
+import datapunch.org.starfish.core.EmrClusterController;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
