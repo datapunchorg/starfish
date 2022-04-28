@@ -5,8 +5,8 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <artifactId>starfish-parent</artifactId>
         <groupId>org.datapunch</groupId>
+        <artifactId>starfish-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -22,11 +22,16 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <dropwizard.version>2.0.29</dropwizard.version>
-        <mainClass>datapunch.org.starfish.ServerApplication</mainClass>
+        <mainClass>org.datapunch.starfish.ServerApplication</mainClass>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.datapunch</groupId>
+                <artifactId>starfish-emr</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-dependencies</artifactId>
@@ -70,6 +75,10 @@
             <artifactId>testng</artifactId>
             <version>6.14.3</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.datapunch</groupId>
+            <artifactId>starfish-emr</artifactId>
         </dependency>
     </dependencies>
 
