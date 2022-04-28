@@ -1,9 +1,9 @@
 package datapunch.org;
 
+import datapunch.org.core.EmrClusterConfiguration;
 import io.dropwizard.Configuration;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.hibernate.validator.constraints.*;
-import javax.validation.constraints.*;
+
 import javax.validation.constraints.NotEmpty;
 
 public class StarfishConfiguration extends Configuration {
@@ -12,6 +12,8 @@ public class StarfishConfiguration extends Configuration {
 
     @NotEmpty
     private String defaultName = "Stranger";
+
+    private EmrClusterConfiguration emrClusterConfiguration;
 
     @JsonProperty
     public String getTemplate() {
@@ -31,5 +33,15 @@ public class StarfishConfiguration extends Configuration {
     @JsonProperty
     public void setDefaultName(String name) {
         this.defaultName = name;
+    }
+
+    @JsonProperty
+    public EmrClusterConfiguration getEmrClusterConfiguration() {
+        return emrClusterConfiguration;
+    }
+
+    @JsonProperty
+    public void setEmrClusterConfiguration(EmrClusterConfiguration emrClusterConfiguration) {
+        this.emrClusterConfiguration = emrClusterConfiguration;
     }
 }

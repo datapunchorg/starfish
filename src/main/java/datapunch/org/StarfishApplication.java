@@ -36,7 +36,7 @@ public class StarfishApplication extends Application<StarfishConfiguration> {
         );
         environment.jersey().register(resource);
 
-        final ClusterResource clusterResource = new ClusterResource();
+        final ClusterResource clusterResource = new ClusterResource(configuration.getEmrClusterConfiguration());
         environment.jersey().register(clusterResource);
     }
 
