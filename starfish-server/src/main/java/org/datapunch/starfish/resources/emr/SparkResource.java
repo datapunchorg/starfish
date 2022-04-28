@@ -30,4 +30,12 @@ public class SparkResource {
         return controller.submitSparkApplication(clusterId, request);
     }
 
+    @GET
+    @Timed
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{clusterId}/spark/{submissionId}")
+    public GetSparkApplicationResponse getSparkApplication(@PathParam("clusterId") String clusterId, @PathParam("submissionId") String submissionId) {
+        return controller.getSparkApplication(clusterId, submissionId);
+    }
 }
