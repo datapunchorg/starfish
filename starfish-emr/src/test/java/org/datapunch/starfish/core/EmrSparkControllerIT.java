@@ -65,6 +65,11 @@ public class EmrSparkControllerIT {
         Assert.assertNotNull(submitSparkApplicationResponse.getClusterFqid());
         Assert.assertNotNull(submitSparkApplicationResponse.getSubmissionId());
 
+        GetSparkApplicationResponse getSparkApplicationResponse =  sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
+        Assert.assertNotNull(getSparkApplicationResponse.getClusterFqid());
+        Assert.assertNotNull(getSparkApplicationResponse.getSubmissionId());
+        Assert.assertNotNull(getSparkApplicationResponse.getStatus());
+
         if (deleteClusterAfterTest) {
             DeleteClusterResponse deleteClusterResponse = clusterController.deleteCluster(clusterFqid);
             Assert.assertNotNull(deleteClusterResponse.getClusterFqid());

@@ -1,10 +1,13 @@
 package org.datapunch.starfish.api.emr;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.datapunch.starfish.api.spark.SparkApplicationStatus;
 
-public class SubmitSparkApplicationResponse {
+public class GetSparkApplicationResponse {
     private String clusterFqid;
     private String submissionId;
+
+    private SparkApplicationStatus status;
 
     @JsonProperty
     public String getClusterFqid() {
@@ -24,5 +27,15 @@ public class SubmitSparkApplicationResponse {
     @JsonProperty
     public void setSubmissionId(String submissionId) {
         this.submissionId = submissionId;
+    }
+
+    @JsonProperty
+    public SparkApplicationStatus getStatus() {
+        return status;
+    }
+
+    @JsonProperty
+    public void setStatus(SparkApplicationStatus status) {
+        this.status = status;
     }
 }

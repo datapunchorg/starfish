@@ -5,6 +5,8 @@ import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduce;
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClientBuilder;
 import com.amazonaws.services.elasticmapreduce.model.*;
 import org.datapunch.starfish.api.emr.*;
+import org.datapunch.starfish.api.spark.SparkApplicationState;
+import org.datapunch.starfish.api.spark.SparkApplicationStatus;
 import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
 
 import java.util.List;
@@ -43,6 +45,34 @@ public class EmrSparkController {
             SubmitSparkApplicationResponse response = new SubmitSparkApplicationResponse();
             response.setClusterFqid(clusterFqid.toString());
             response.setSubmissionId(stepIds.get(0));
+            return response;
+        } finally {
+            emr.shutdown();
+        }
+    }
+
+    public GetSparkApplicationResponse getSparkApplication(String clusterFqidStr, String submissionId) {
+        EmrClusterFqid clusterFqid = new EmrClusterFqid(clusterFqidStr);
+        AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
+        try {
+            DescribeStepRequest describeStepRequest = new DescribeStepRequest();
+            describeStepRequest.setClusterId(clusterFqid.getClusterId());
+            describeStepRequest.setStepId(submissionId);
+            DescribeStepResult describeStepResult = emr.describeStep(describeStepRequest);
+            String state = describeStepResult.getStep().getStatus().getState();
+            String errorMessage = null;
+            if (describeStepResult.getStep().getStatus().getFailureDetails() != null) {
+                errorMessage = describeStepResult.getStep().getStatus().getFailureDetails().toString();
+            }
+            SparkApplicationState sparkApplicationState = new SparkApplicationState();
+            sparkApplicationState.setState(state);
+            sparkApplicationState.setErrorMessage(errorMessage);
+            SparkApplicationStatus sparkApplicationStatus = new SparkApplicationStatus();
+            sparkApplicationStatus.setApplicationState(sparkApplicationState);
+            GetSparkApplicationResponse response = new GetSparkApplicationResponse();
+            response.setClusterFqid(clusterFqidStr);
+            response.setSubmissionId(submissionId);
+            response.setStatus(sparkApplicationStatus);
             return response;
         } finally {
             emr.shutdown();
