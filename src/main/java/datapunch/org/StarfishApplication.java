@@ -2,6 +2,7 @@ package datapunch.org;
 
 import datapunch.org.health.TemplateHealthCheck;
 import datapunch.org.resources.HelloWorldResource;
+import datapunch.org.resources.emr.ClusterResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -25,14 +26,18 @@ public class StarfishApplication extends Application<StarfishConfiguration> {
     @Override
     public void run(final StarfishConfiguration configuration,
                     final Environment environment) {
+        final TemplateHealthCheck healthCheck =
+                new TemplateHealthCheck(configuration.getTemplate());
+        environment.healthChecks().register("template", healthCheck);
+
         final HelloWorldResource resource = new HelloWorldResource(
                 configuration.getTemplate(),
                 configuration.getDefaultName()
         );
-        final TemplateHealthCheck healthCheck =
-                new TemplateHealthCheck(configuration.getTemplate());
-        environment.healthChecks().register("template", healthCheck);
         environment.jersey().register(resource);
+
+        final ClusterResource clusterResource = new ClusterResource();
+        environment.jersey().register(clusterResource);
     }
 
 }

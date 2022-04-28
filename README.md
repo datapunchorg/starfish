@@ -11,3 +11,13 @@ Health Check
 ---
 
 To see your applications health enter url `http://localhost:8081/healthcheck`
+
+Request Examples
+---
+
+```
+curl -X POST localhost:8080/starfish/v1/emr/clusters -H 'Content-Type: application/json' -d '{"emrRelease": "emr-6.5.0"}'
+
+curl -X DELETE localhost:8080/starfish/v1/emr/clusters/01
+
+```
