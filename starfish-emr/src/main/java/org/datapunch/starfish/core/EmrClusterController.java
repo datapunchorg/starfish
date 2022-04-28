@@ -6,7 +6,6 @@ import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClientBuild
 import com.amazonaws.services.elasticmapreduce.model.*;
 import com.amazonaws.services.elasticmapreduce.util.StepFactory;
 import org.datapunch.starfish.api.emr.*;
-import org.datapunch.starfish.util.AwsUtil;
 import org.datapunch.starfish.util.ListUtil;
 import org.datapunch.starfish.util.StringUtil;
 import org.datapunch.starfish.api.emr.ClusterStatus;
@@ -75,61 +74,64 @@ public class EmrClusterController {
 
         // create the cluster
         AmazonElasticMapReduce emr = getEmr(region);
-        RunJobFlowRequest runJobFlowRequest = new RunJobFlowRequest()
-                .withName(clusterName)
-                .withReleaseLabel(releaseLabel)
-                .withSteps(enabledebugging)
-                .withApplications(spark)
-                .withLogUri(logUri)
-                .withServiceRole(serviceRoleName)
-                .withJobFlowRole(jobFlowRoleName)
-                .withInstances(new JobFlowInstancesConfig()
-                        .withEc2SubnetId(subnetId)
-                        // .withEc2KeyName("myEc2Key")
-                        .withInstanceCount(instanceCount)
-                        .withKeepJobFlowAliveWhenNoSteps(true)
-                        .withMasterInstanceType(masterInstanceType)
-                        .withSlaveInstanceType(slaveInstanceType));
-        RunJobFlowResult runJobFlowResult = emr.runJobFlow(runJobFlowRequest);
-        CreateClusterResponse response = new CreateClusterResponse();
-        response.setClusterId(String.format("%s-%s", region, runJobFlowResult.getJobFlowId()));
-        return response;
+        try {
+            RunJobFlowRequest runJobFlowRequest = new RunJobFlowRequest()
+                    .withName(clusterName)
+                    .withReleaseLabel(releaseLabel)
+                    .withSteps(enabledebugging)
+                    .withApplications(spark)
+                    .withLogUri(logUri)
+                    .withServiceRole(serviceRoleName)
+                    .withJobFlowRole(jobFlowRoleName)
+                    .withInstances(new JobFlowInstancesConfig()
+                            .withEc2SubnetId(subnetId)
+                            // .withEc2KeyName("myEc2Key")
+                            .withInstanceCount(instanceCount)
+                            .withKeepJobFlowAliveWhenNoSteps(true)
+                            .withMasterInstanceType(masterInstanceType)
+                            .withSlaveInstanceType(slaveInstanceType));
+            RunJobFlowResult runJobFlowResult = emr.runJobFlow(runJobFlowRequest);
+            CreateClusterResponse response = new CreateClusterResponse();
+            response.setClusterFqid(String.format("%s-%s", region, runJobFlowResult.getJobFlowId()));
+            return response;
+        } finally {
+            emr.shutdown();
+        }
     }
 
     public GetClusterResponse getCluster(String id) {
-        EmrClusterFqid clusterFqid = getClusterFqid(id);
+        EmrClusterFqid clusterFqid = new EmrClusterFqid(id);
         AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
-        DescribeClusterRequest describeClusterRequest = new DescribeClusterRequest();
-        describeClusterRequest.setClusterId(clusterFqid.getClusterId());
-        DescribeClusterResult describeClusterResult = emr.describeCluster(describeClusterRequest);
-        org.datapunch.starfish.api.emr.ClusterStatus status = new ClusterStatus();
-        status.setState(describeClusterResult.getCluster().getStatus().getState());
-        status.setCode(describeClusterResult.getCluster().getStatus().getStateChangeReason().getCode());
-        status.setInformation(describeClusterResult.getCluster().getStatus().getStateChangeReason().getMessage());
-        GetClusterResponse response = new GetClusterResponse();
-        response.setClusterId(id);
-        response.setStatus(status);
-        return response;
+        try {
+            DescribeClusterRequest describeClusterRequest = new DescribeClusterRequest();
+            describeClusterRequest.setClusterId(clusterFqid.getClusterId());
+            DescribeClusterResult describeClusterResult = emr.describeCluster(describeClusterRequest);
+            org.datapunch.starfish.api.emr.ClusterStatus status = new ClusterStatus();
+            status.setState(describeClusterResult.getCluster().getStatus().getState());
+            status.setCode(describeClusterResult.getCluster().getStatus().getStateChangeReason().getCode());
+            status.setInformation(describeClusterResult.getCluster().getStatus().getStateChangeReason().getMessage());
+            GetClusterResponse response = new GetClusterResponse();
+            response.setClusterFqid(id);
+            response.setStatus(status);
+            return response;
+        } finally {
+            emr.shutdown();
+        }
     }
 
     public DeleteClusterResponse deleteCluster(String id) {
-        EmrClusterFqid clusterFqid = getClusterFqid(id);
+        EmrClusterFqid clusterFqid = new EmrClusterFqid(id);
         AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
-        TerminateJobFlowsRequest terminateJobFlowsRequest = new TerminateJobFlowsRequest();
-        terminateJobFlowsRequest.setJobFlowIds(Arrays.asList(clusterFqid.getClusterId()));
-        emr.terminateJobFlows(terminateJobFlowsRequest);
-        DeleteClusterResponse response = new DeleteClusterResponse();
-        response.setClusterId(id);
-        return response;
-    }
-
-    private EmrClusterFqid getClusterFqid(String id) {
-        String region = AwsUtil.getRegionFromPrefix(id);
-        id = id.substring(region.length());
-        if (id.startsWith("-")) {
-            id = id.substring(1);
+        try {
+            TerminateJobFlowsRequest terminateJobFlowsRequest = new TerminateJobFlowsRequest();
+            terminateJobFlowsRequest.setJobFlowIds(Arrays.asList(clusterFqid.getClusterId()));
+            emr.terminateJobFlows(terminateJobFlowsRequest);
+            DeleteClusterResponse response = new DeleteClusterResponse();
+            response.setClusterFqid(id);
+            return response;
+        } finally {
+            emr.shutdown();
         }
-        return new EmrClusterFqid(region, id);
     }
 
     private AmazonElasticMapReduce getEmr(String region) {

@@ -23,11 +23,11 @@ public class EmrClusterControllerIT {
         createClusterRequest.setClusterName(String.format("IntegrationTest-%s", EmrClusterControllerIT.class.getSimpleName()));
         CreateClusterResponse createClusterResponse = controller.createCluster(createClusterRequest);
 
-        GetClusterResponse getClusterResponse = controller.getCluster(createClusterResponse.getClusterId());
-        Assert.assertEquals(getClusterResponse.getClusterId(), createClusterResponse.getClusterId());
+        GetClusterResponse getClusterResponse = controller.getCluster(createClusterResponse.getClusterFqid());
+        Assert.assertEquals(getClusterResponse.getClusterFqid(), createClusterResponse.getClusterFqid());
         Assert.assertNotNull(getClusterResponse.getStatus());
 
-        DeleteClusterResponse deleteClusterResponse = controller.deleteCluster(createClusterResponse.getClusterId());
-        Assert.assertNotNull(deleteClusterResponse.getClusterId());
+        DeleteClusterResponse deleteClusterResponse = controller.deleteCluster(createClusterResponse.getClusterFqid());
+        Assert.assertNotNull(deleteClusterResponse.getClusterFqid());
     }
 }

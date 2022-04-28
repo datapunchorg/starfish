@@ -18,9 +18,9 @@ Request Examples
 ```
 curl -X POST localhost:8080/starfish/v1/emr/clusters -H 'Content-Type: application/json' -d '{"emrRelease": "emr-6.5.0"}'
 
-curl localhost:8080/starfish/v1/emr/clusters/j-1W87FUAZ35XO9
+curl localhost:8080/starfish/v1/emr/clusters/us-west-1-j-109YQ7ZZ14V08
 
-curl -X DELETE localhost:8080/starfish/v1/emr/clusters/j-1W87FUAZ35XO9
+curl -X DELETE localhost:8080/starfish/v1/emr/clusters/us-west-1-j-109YQ7ZZ14V08
 
 
 ```
