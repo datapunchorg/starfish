@@ -1,6 +1,7 @@
 package org.datapunch.starfish.core;
 
 import org.datapunch.starfish.api.emr.*;
+import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -15,7 +16,7 @@ public class EmrSparkControllerIT {
 
     @Test
     public void testController() {
-        String clusterFqid = "us-west-1-j-3L4KPEHG5W4N6";
+        String clusterFqid = "us-west-1-j-XSKSY82EOVZQ";
         boolean deleteClusterAfterTest = false;
 
         EmrClusterConfiguration clusterConfiguration = new EmrClusterConfiguration();
@@ -24,7 +25,6 @@ public class EmrSparkControllerIT {
         clusterConfiguration.setSubnetIds(Arrays.asList("subnet-1147f875"));
 
         EmrClusterController clusterController = new EmrClusterController(clusterConfiguration);
-
 
         if (clusterFqid == null) {
             CreateClusterRequest createClusterRequest = new CreateClusterRequest();
@@ -52,14 +52,16 @@ public class EmrSparkControllerIT {
             Assert.assertNotNull(getClusterResponse.getStatus());
 
             clusterFqid = getClusterResponse.getClusterFqid();
-            deleteClusterAfterTest = true;
         }
 
         EmrSparkController sparkController = new EmrSparkController(clusterConfiguration);
 
         SubmitSparkApplicationRequest submitSparkApplicationRequest = new SubmitSparkApplicationRequest();
-        submitSparkApplicationRequest.setClusterFqid(clusterFqid);
-        sparkController.submitSparkApplication(submitSparkApplicationRequest);
+        submitSparkApplicationRequest.setMainClass("org.apache.spark.examples.SparkPi");
+        submitSparkApplicationRequest.setMainApplicationFile("s3a://datapunch-public-01/jars/spark-examples_2.12-3.1.2.jar");
+        SubmitSparkApplicationResponse submitSparkApplicationResponse = sparkController.submitSparkApplication(clusterFqid, submitSparkApplicationRequest);
+        Assert.assertNotNull(submitSparkApplicationResponse.getClusterFqid());
+        Assert.assertNotNull(submitSparkApplicationResponse.getSubmissionId());
 
         if (deleteClusterAfterTest) {
             DeleteClusterResponse deleteClusterResponse = clusterController.deleteCluster(clusterFqid);

@@ -4,10 +4,10 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduce;
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClientBuilder;
 import com.amazonaws.services.elasticmapreduce.model.*;
-import org.datapunch.starfish.api.emr.ClusterStatus;
 import org.datapunch.starfish.api.emr.*;
+import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class EmrSparkController {
     private final EmrClusterConfiguration config;
@@ -16,14 +16,14 @@ public class EmrSparkController {
         this.config = config == null ? new EmrClusterConfiguration() : config;
     }
 
-    public CreateClusterResponse submitSparkApplication(SubmitSparkApplicationRequest request) {
-        EmrClusterFqid clusterFqid = new EmrClusterFqid(request.getClusterFqid());
+    public SubmitSparkApplicationResponse submitSparkApplication(String clusterFqidStr, SubmitSparkApplicationRequest request) {
+        EmrClusterFqid clusterFqid = new EmrClusterFqid(clusterFqidStr);
         HadoopJarStepConfig sparkStepConf = new HadoopJarStepConfig()
                         .withJar("command-runner.jar")
                         .withArgs("spark-submit")
                         .withArgs("--master", "yarn")
-                        .withArgs("--class", "org.apache.spark.examples.SparkPi")
-                        .withArgs("s3a://datapunch-public-01/jars/spark-examples_2.12-3.1.2.jar");
+                        .withArgs("--class", request.getMainClass())
+                        .withArgs(request.getMainApplicationFile());
         StepConfig sparkStep = new StepConfig()
                 .withName("Spark Step")
                 .withActionOnFailure(ActionOnFailure.CONTINUE)
@@ -34,7 +34,16 @@ public class EmrSparkController {
         AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
         try {
             AddJobFlowStepsResult addJobFlowStepsResult = emr.addJobFlowSteps(addJobFlowStepsRequest);
-            return null;
+            List<String> stepIds = addJobFlowStepsResult.getStepIds();
+            if (stepIds.size() != 1) {
+                throw new RuntimeException(String.format(
+                        "Failed to submit Spark application to cluster %s, expecting 1 step id in the result, but got %s",
+                        clusterFqid, stepIds.size()));
+            }
+            SubmitSparkApplicationResponse response = new SubmitSparkApplicationResponse();
+            response.setClusterFqid(clusterFqid.toString());
+            response.setSubmissionId(stepIds.get(0));
+            return response;
         } finally {
             emr.shutdown();
         }
