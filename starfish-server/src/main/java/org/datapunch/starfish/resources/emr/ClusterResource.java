@@ -38,19 +38,19 @@ public class ClusterResource {
 
     @GET
     @Timed
-    @Path("/{id}")
+    @Path("/{clusterId}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @Produces(MediaType.APPLICATION_JSON)
-    public GetClusterResponse getCluster(@PathParam("id") String id) {
-        return controller.getCluster(id);
+    public GetClusterResponse getCluster(@PathParam("clusterId") String clusterId) {
+        return controller.getCluster(clusterId);
     }
 
     @DELETE
     @Timed
-    @Path("/{id}")
+    @Path("/{clusterId}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @Produces(MediaType.APPLICATION_JSON)
-    public DeleteClusterResponse deleteCluster(@PathParam("id") String id) {
-        return controller.deleteCluster(id);
+    public DeleteClusterResponse deleteCluster(@PathParam("clusterId") String clusterId) {
+        return controller.deleteCluster(clusterId);
     }
 }

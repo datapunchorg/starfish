@@ -10,10 +10,10 @@ import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
 import java.util.List;
 
 public class EmrSparkController {
-    private final EmrClusterConfiguration config;
+    private final EmrSparkConfiguration config;
 
-    public EmrSparkController(EmrClusterConfiguration config) {
-        this.config = config == null ? new EmrClusterConfiguration() : config;
+    public EmrSparkController(EmrSparkConfiguration config) {
+        this.config = config == null ? new EmrSparkConfiguration() : config;
     }
 
     public SubmitSparkApplicationResponse submitSparkApplication(String clusterFqidStr, SubmitSparkApplicationRequest request) {

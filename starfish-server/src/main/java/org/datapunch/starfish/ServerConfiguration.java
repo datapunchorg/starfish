@@ -3,6 +3,7 @@ package org.datapunch.starfish;
 import org.datapunch.starfish.core.EmrClusterConfiguration;
 import io.dropwizard.Configuration;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.datapunch.starfish.core.EmrSparkConfiguration;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -14,6 +15,7 @@ public class ServerConfiguration extends Configuration {
     private String defaultName = "Stranger";
 
     private EmrClusterConfiguration emrClusterConfiguration;
+    private EmrSparkConfiguration sparkConfiguration;
 
     @JsonProperty
     public String getTemplate() {
@@ -43,5 +45,15 @@ public class ServerConfiguration extends Configuration {
     @JsonProperty
     public void setEmrClusterConfiguration(EmrClusterConfiguration emrClusterConfiguration) {
         this.emrClusterConfiguration = emrClusterConfiguration;
+    }
+
+    @JsonProperty
+    public EmrSparkConfiguration getSparkConfiguration() {
+        return sparkConfiguration;
+    }
+
+    @JsonProperty
+    public void setSparkConfiguration(EmrSparkConfiguration sparkConfiguration) {
+        this.sparkConfiguration = sparkConfiguration;
     }
 }

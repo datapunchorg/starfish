@@ -16,7 +16,7 @@ public class EmrSparkControllerIT {
 
     @Test
     public void testController() {
-        String clusterFqid = "us-west-1-j-XSKSY82EOVZQ";
+        String clusterFqid = "us-west-1-j-XSKSY82EOVZQ"; // TODO use environment variable
         boolean deleteClusterAfterTest = false;
 
         EmrClusterConfiguration clusterConfiguration = new EmrClusterConfiguration();
@@ -37,7 +37,8 @@ public class EmrSparkControllerIT {
             Set<String> readyStates = new HashSet<>(Arrays.asList("Waiting".toLowerCase()));
             while (System.currentTimeMillis() - startTime < 30 * 60 * 1000) {
                 logger.info("EMR cluster {} in state {}", createClusterResponse.getClusterFqid(), getClusterResponse.getStatus().getState());
-                if (getClusterResponse.getStatus().getState() != null && readyStates.contains(getClusterResponse.getStatus().getState().toLowerCase())) {
+                if (getClusterResponse.getStatus().getState() != null &&
+                        (readyStates.contains(getClusterResponse.getStatus().getState().toLowerCase())) || getClusterResponse.getStatus().getState().toLowerCase().contains("terminated")) {
                     break;
                 }
                 try {
@@ -54,7 +55,8 @@ public class EmrSparkControllerIT {
             clusterFqid = getClusterResponse.getClusterFqid();
         }
 
-        EmrSparkController sparkController = new EmrSparkController(clusterConfiguration);
+        EmrSparkConfiguration sparkConfiguration = new EmrSparkConfiguration();
+        EmrSparkController sparkController = new EmrSparkController(sparkConfiguration);
 
         SubmitSparkApplicationRequest submitSparkApplicationRequest = new SubmitSparkApplicationRequest();
         submitSparkApplicationRequest.setMainClass("org.apache.spark.examples.SparkPi");
