@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CreateClusterRequest {
     private String clusterName;
     private String emrRelease;
+    private String subnetId;
 
     @JsonProperty
     public String getClusterName() {
@@ -24,5 +25,15 @@ public class CreateClusterRequest {
     @JsonProperty
     public void setEmrRelease(String emrRelease) {
         this.emrRelease = emrRelease;
+    }
+
+    @JsonProperty
+    public String getSubnetId() {
+        return subnetId;
+    }
+
+    @JsonProperty
+    public void setSubnetId(String subnetId) {
+        this.subnetId = subnetId;
     }
 }

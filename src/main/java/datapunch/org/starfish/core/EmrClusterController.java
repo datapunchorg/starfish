@@ -8,15 +8,16 @@ import com.amazonaws.services.elasticmapreduce.model.*;
 import com.amazonaws.services.elasticmapreduce.util.StepFactory;
 import datapunch.org.starfish.api.emr.*;
 import datapunch.org.starfish.api.emr.ClusterStatus;
+import datapunch.org.starfish.util.StringUtil;
 
 import java.util.Arrays;
 import java.util.UUID;
 
 public class EmrClusterController {
-    private final EmrClusterConfiguration clusterConfiguration;
+    private final EmrClusterConfiguration config;
 
-    public EmrClusterController(EmrClusterConfiguration clusterConfiguration) {
-        this.clusterConfiguration = clusterConfiguration;
+    public EmrClusterController(EmrClusterConfiguration config) {
+        this.config = config == null ? new EmrClusterConfiguration() : config;
     }
 
     public CreateClusterResponse createCluster(CreateClusterRequest request) {
@@ -37,8 +38,12 @@ public class EmrClusterController {
             clusterName = UUID.randomUUID().toString();
         }
         String releaseLabel = request.getEmrRelease();
-        if (releaseLabel == null || releaseLabel.isEmpty()) {
-            releaseLabel = "emr-5.20.0";
+        if (StringUtil.isNullOrEmpty(releaseLabel) && !StringUtil.isNullOrEmpty(config.getEmrRelease())) {
+            releaseLabel = config.getEmrRelease();
+        }
+        String subnetId = request.getSubnetId();
+        if (StringUtil.isNullOrEmpty(subnetId) && !StringUtil.isNullOrEmpty(config.getSubnetId())) {
+            subnetId = config.getSubnetId();
         }
 
         // create the cluster
@@ -51,7 +56,7 @@ public class EmrClusterController {
                 .withServiceRole("EMR_DefaultRole") // replace the default with a custom IAM service role if one is used
                 .withJobFlowRole("EMR_EC2_DefaultRole") // replace the default with a custom EMR role for the EC2 instance profile if one is used
                 .withInstances(new JobFlowInstancesConfig()
-                        .withEc2SubnetId("subnet-12ab34c56")
+                        .withEc2SubnetId(subnetId)
                         // .withEc2KeyName("myEc2Key")
                         .withInstanceCount(3)
                         .withKeepJobFlowAliveWhenNoSteps(true)

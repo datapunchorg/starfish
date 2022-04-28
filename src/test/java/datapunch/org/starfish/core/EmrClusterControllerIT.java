@@ -11,6 +11,10 @@ public class EmrClusterControllerIT {
     @Test
     public void testController() {
         EmrClusterConfiguration clusterConfiguration = new EmrClusterConfiguration();
+
+        // TODO query AWS account and get subnet id
+        clusterConfiguration.setSubnetId("subnet-1147f875");
+
         EmrClusterController controller = new EmrClusterController(clusterConfiguration);
 
         CreateClusterRequest createClusterRequest = new CreateClusterRequest();
