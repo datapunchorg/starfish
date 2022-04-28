@@ -9,12 +9,20 @@ import org.datapunch.starfish.api.emr.*;
 import org.datapunch.starfish.util.ListUtil;
 import org.datapunch.starfish.util.StringUtil;
 import org.datapunch.starfish.api.emr.ClusterStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class EmrClusterController {
+    private static final Logger logger = LoggerFactory.getLogger(EmrClusterController.class);
+
     private final EmrClusterConfiguration config;
+
+    private static final Set<String> finishedStatesLowerCase = new HashSet<>(Arrays.asList("waiting", "terminated", "terminated with errors"));
 
     public EmrClusterController(EmrClusterConfiguration config) {
         this.config = config == null ? new EmrClusterConfiguration() : config;
@@ -99,8 +107,8 @@ public class EmrClusterController {
         }
     }
 
-    public GetClusterResponse getCluster(String id) {
-        EmrClusterFqid clusterFqid = new EmrClusterFqid(id);
+    public GetClusterResponse getCluster(String clusterFqidStr) {
+        EmrClusterFqid clusterFqid = new EmrClusterFqid(clusterFqidStr);
         AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
         try {
             DescribeClusterRequest describeClusterRequest = new DescribeClusterRequest();
@@ -111,7 +119,7 @@ public class EmrClusterController {
             status.setCode(describeClusterResult.getCluster().getStatus().getStateChangeReason().getCode());
             status.setInformation(describeClusterResult.getCluster().getStatus().getStateChangeReason().getMessage());
             GetClusterResponse response = new GetClusterResponse();
-            response.setClusterFqid(id);
+            response.setClusterFqid(clusterFqidStr);
             response.setStatus(status);
             return response;
         } finally {
@@ -119,19 +127,48 @@ public class EmrClusterController {
         }
     }
 
-    public DeleteClusterResponse deleteCluster(String id) {
-        EmrClusterFqid clusterFqid = new EmrClusterFqid(id);
+    public DeleteClusterResponse deleteCluster(String clusterFqidStr) {
+        EmrClusterFqid clusterFqid = new EmrClusterFqid(clusterFqidStr);
         AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
         try {
             TerminateJobFlowsRequest terminateJobFlowsRequest = new TerminateJobFlowsRequest();
             terminateJobFlowsRequest.setJobFlowIds(Arrays.asList(clusterFqid.getClusterId()));
             emr.terminateJobFlows(terminateJobFlowsRequest);
             DeleteClusterResponse response = new DeleteClusterResponse();
-            response.setClusterFqid(id);
+            response.setClusterFqid(clusterFqidStr);
             return response;
         } finally {
             emr.shutdown();
         }
+    }
+
+    public void waitClusterReadyOrTerminated(String clusterFqidStr, long maxWaitMillis, long sleepIntervalMillis) {
+        long startTime = System.currentTimeMillis();
+        String state = null;
+        while (System.currentTimeMillis() - startTime <= maxWaitMillis) {
+            GetClusterResponse getClusterResponse = getCluster(clusterFqidStr);
+            if (getClusterResponse.getStatus() != null) {
+                state = getClusterResponse.getStatus().getState();
+                if (state != null) {
+                    if (finishedStatesLowerCase.contains(state.toLowerCase())) {
+                        logger.info("Cluster {} ready or terminated (state {})", clusterFqidStr, state);
+                        return;
+                    } else {
+                        logger.info("Cluster {} not ready or terminated (state {})", clusterFqidStr, state);
+                    }
+                }
+            }
+            try {
+                if (sleepIntervalMillis > 0) {
+                    Thread.sleep(sleepIntervalMillis);
+                }
+            } catch (InterruptedException e) {
+                logger.warn("InterruptedException", e);
+            }
+        }
+        throw new RuntimeException(String.format(
+                "Cluster %s not ready or terminated (state: %s) after waiting %s milliseconds",
+                clusterFqidStr, state, maxWaitMillis));
     }
 
     private AmazonElasticMapReduce getEmr(String region) {

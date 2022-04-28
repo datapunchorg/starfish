@@ -9,12 +9,16 @@ import org.datapunch.starfish.api.spark.SparkApplicationState;
 import org.datapunch.starfish.api.spark.SparkApplicationStatus;
 import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
 import org.datapunch.starfish.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EmrSparkController {
+    private static final Logger logger = LoggerFactory.getLogger(EmrSparkController.class);
+
+    private static final Set<String> finishedStatesLowerCase = new HashSet<>(Arrays.asList("completed", "failed"));
+
     private final EmrSparkConfiguration config;
 
     public EmrSparkController(EmrSparkConfiguration config) {
@@ -108,6 +112,37 @@ public class EmrSparkController {
         } finally {
             emr.shutdown();
         }
+    }
+
+    public void waitSparkApplicationFinished(String clusterFqidStr, String submissionId, long maxWaitMillis, long sleepIntervalMillis) {
+        long startTime = System.currentTimeMillis();
+        String state = null;
+        while (System.currentTimeMillis() - startTime <= maxWaitMillis) {
+            GetSparkApplicationResponse getSparkApplicationResponse = getSparkApplication(clusterFqidStr, submissionId);
+            if (getSparkApplicationResponse.getStatus() != null) {
+                if (getSparkApplicationResponse.getStatus().getApplicationState() != null) {
+                    state = getSparkApplicationResponse.getStatus().getApplicationState().getState();
+                    if (state != null) {
+                        if (finishedStatesLowerCase.contains(state.toLowerCase())) {
+                            logger.info("Spark application {} (cluster: {}) finished (state {})", submissionId, clusterFqidStr, state);
+                            return;
+                        } else {
+                            logger.info("Spark application {} (cluster: {}) not finished (state {})", submissionId, clusterFqidStr, state);
+                        }
+                    }
+                }
+            }
+            try {
+                if (sleepIntervalMillis > 0) {
+                    Thread.sleep(sleepIntervalMillis);
+                }
+            } catch (InterruptedException e) {
+                logger.warn("InterruptedException", e);
+            }
+        }
+        throw new RuntimeException(String.format(
+                "Spark application %s (cluster: %s) not finished (state: %s) after waiting %s milliseconds",
+                submissionId, clusterFqidStr, state, maxWaitMillis));
     }
 
     // TODO move getEmr to helper function
