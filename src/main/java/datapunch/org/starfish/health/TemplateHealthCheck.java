@@ -1,4 +1,4 @@
-package datapunch.org.health;
+package datapunch.org.starfish.health;
 
 import com.codahale.metrics.health.HealthCheck;
 

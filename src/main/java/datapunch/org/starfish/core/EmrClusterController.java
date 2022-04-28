@@ -1,4 +1,4 @@
-package datapunch.org.core;
+package datapunch.org.starfish.core;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Regions;
@@ -6,10 +6,9 @@ import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduce;
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClientBuilder;
 import com.amazonaws.services.elasticmapreduce.model.*;
 import com.amazonaws.services.elasticmapreduce.util.StepFactory;
-import datapunch.org.api.emr.*;
-import datapunch.org.api.emr.ClusterStatus;
+import datapunch.org.starfish.api.emr.*;
+import datapunch.org.starfish.api.emr.ClusterStatus;
 
-import javax.ws.rs.PathParam;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -70,7 +69,7 @@ public class EmrClusterController {
         DescribeClusterRequest describeClusterRequest = new DescribeClusterRequest();
         describeClusterRequest.setClusterId(id);
         DescribeClusterResult describeClusterResult = emr.describeCluster(describeClusterRequest);
-        datapunch.org.api.emr.ClusterStatus status = new ClusterStatus();
+        ClusterStatus status = new ClusterStatus();
         status.setState(describeClusterResult.getCluster().getStatus().getState());
         status.setCode(describeClusterResult.getCluster().getStatus().getStateChangeReason().getCode());
         status.setInformation(describeClusterResult.getCluster().getStatus().getStateChangeReason().getMessage());

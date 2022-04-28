@@ -1,4 +1,4 @@
-package datapunch.org.api.emr;
+package datapunch.org.starfish.api.emr;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

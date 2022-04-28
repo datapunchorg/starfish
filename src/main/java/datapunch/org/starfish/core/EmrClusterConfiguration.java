@@ -1,4 +1,4 @@
-package datapunch.org.core;
+package datapunch.org.starfish.core;
 
 public class EmrClusterConfiguration {
 }

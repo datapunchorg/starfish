@@ -1,16 +1,16 @@
-package datapunch.org;
+package datapunch.org.starfish;
 
-import datapunch.org.health.TemplateHealthCheck;
-import datapunch.org.resources.HelloWorldResource;
-import datapunch.org.resources.emr.ClusterResource;
+import datapunch.org.starfish.health.TemplateHealthCheck;
+import datapunch.org.starfish.resources.HelloWorldResource;
+import datapunch.org.starfish.resources.emr.ClusterResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-public class StarfishApplication extends Application<StarfishConfiguration> {
+public class ServerApplication extends Application<ServerConfiguration> {
 
     public static void main(final String[] args) throws Exception {
-        new StarfishApplication().run(args);
+        new ServerApplication().run(args);
     }
 
     @Override
@@ -19,12 +19,12 @@ public class StarfishApplication extends Application<StarfishConfiguration> {
     }
 
     @Override
-    public void initialize(final Bootstrap<StarfishConfiguration> bootstrap) {
+    public void initialize(final Bootstrap<ServerConfiguration> bootstrap) {
         // TODO: application initialization
     }
 
     @Override
-    public void run(final StarfishConfiguration configuration,
+    public void run(final ServerConfiguration configuration,
                     final Environment environment) {
         final TemplateHealthCheck healthCheck =
                 new TemplateHealthCheck(configuration.getTemplate());

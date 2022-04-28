@@ -1,12 +1,12 @@
-package datapunch.org;
+package datapunch.org.starfish;
 
-import datapunch.org.core.EmrClusterConfiguration;
+import datapunch.org.starfish.core.EmrClusterConfiguration;
 import io.dropwizard.Configuration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotEmpty;
 
-public class StarfishConfiguration extends Configuration {
+public class ServerConfiguration extends Configuration {
     @NotEmpty
     private String template;
 

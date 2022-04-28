@@ -150,7 +150,7 @@
   </dependencyManagement>
   <properties>
     <dropwizard.version>2.0.29</dropwizard.version>
-    <mainClass>datapunch.org.StarfishApplication</mainClass>
+    <mainClass>datapunch.org.starfish.ServerApplication</mainClass>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>

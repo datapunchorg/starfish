@@ -1,7 +1,7 @@
-package datapunch.org.resources;
+package datapunch.org.starfish.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import datapunch.org.api.Saying;
+import datapunch.org.starfish.api.Saying;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

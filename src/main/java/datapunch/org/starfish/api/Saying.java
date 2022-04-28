@@ -1,4 +1,4 @@
-package datapunch.org.api;
+package datapunch.org.starfish.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

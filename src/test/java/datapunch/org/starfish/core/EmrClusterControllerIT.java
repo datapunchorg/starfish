@@ -1,9 +1,9 @@
-package datapunch.org.core;
+package datapunch.org.starfish.core;
 
-import datapunch.org.api.emr.CreateClusterRequest;
-import datapunch.org.api.emr.CreateClusterResponse;
-import datapunch.org.api.emr.DeleteClusterResponse;
-import datapunch.org.api.emr.GetClusterResponse;
+import datapunch.org.starfish.api.emr.CreateClusterRequest;
+import datapunch.org.starfish.api.emr.CreateClusterResponse;
+import datapunch.org.starfish.api.emr.DeleteClusterResponse;
+import datapunch.org.starfish.api.emr.GetClusterResponse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

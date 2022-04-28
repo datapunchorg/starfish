@@ -1,24 +1,15 @@
-package datapunch.org.resources.emr;
+package datapunch.org.starfish.resources.emr;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduce;
-import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClientBuilder;
-import com.amazonaws.services.elasticmapreduce.model.*;
-import com.amazonaws.services.elasticmapreduce.util.StepFactory;
 import com.codahale.metrics.annotation.Timed;
-import datapunch.org.core.EmrClusterConfiguration;
-import datapunch.org.api.emr.ClusterStatus;
-import datapunch.org.api.emr.CreateClusterRequest;
-import datapunch.org.api.emr.CreateClusterResponse;
-import datapunch.org.api.emr.DeleteClusterResponse;
-import datapunch.org.api.emr.GetClusterResponse;
-import datapunch.org.core.EmrClusterController;
+import datapunch.org.starfish.api.emr.CreateClusterRequest;
+import datapunch.org.starfish.api.emr.CreateClusterResponse;
+import datapunch.org.starfish.core.EmrClusterConfiguration;
+import datapunch.org.starfish.core.EmrClusterController;
+import datapunch.org.starfish.api.emr.DeleteClusterResponse;
+import datapunch.org.starfish.api.emr.GetClusterResponse;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.Arrays;
-import java.util.UUID;
 
 @Path("/emr/clusters")
 public class ClusterResource {
