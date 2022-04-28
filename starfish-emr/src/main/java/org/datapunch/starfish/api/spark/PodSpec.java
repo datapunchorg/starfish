@@ -1,18 +1,18 @@
 package org.datapunch.starfish.api.spark;
 
 public class PodSpec {
-    private int cores;
+    private long cores;
     private String memory;
 
     public PodSpec() {
         this.cores = 1;
         this.memory = "512m";
     }
-    public int getCores() {
+    public long getCores() {
         return cores;
     }
 
-    public void setCores(int cores) {
+    public void setCores(long cores) {
         this.cores = cores;
     }
 

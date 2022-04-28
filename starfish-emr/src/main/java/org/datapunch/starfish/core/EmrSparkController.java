@@ -8,8 +8,11 @@ import org.datapunch.starfish.api.emr.*;
 import org.datapunch.starfish.api.spark.SparkApplicationState;
 import org.datapunch.starfish.api.spark.SparkApplicationStatus;
 import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
+import org.datapunch.starfish.util.StringUtil;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EmrSparkController {
     private final EmrSparkConfiguration config;
@@ -24,8 +27,36 @@ public class EmrSparkController {
                         .withJar("command-runner.jar")
                         .withArgs("spark-submit")
                         .withArgs("--master", "yarn")
-                        .withArgs("--class", request.getMainClass())
-                        .withArgs(request.getMainApplicationFile());
+                        .withArgs("--class", request.getMainClass());
+        Map<String, String> sparkConf = new HashMap<>();
+        if (request.getDriver() != null) {
+            if (request.getDriver().getCores() > 0) {
+                sparkConf.put("spark.driver.cores", String.valueOf(request.getDriver().getCores()));
+            }
+            if (!StringUtil.isNullOrEmpty(request.getDriver().getMemory())) {
+                sparkConf.put("spark.driver.memory", request.getDriver().getMemory());
+            }
+        }
+        if (request.getExecutor() != null) {
+            if (request.getExecutor().getCores() > 0) {
+                sparkConf.put("spark.executor.cores", String.valueOf(request.getExecutor().getCores()));
+            }
+            if (!StringUtil.isNullOrEmpty(request.getExecutor().getMemory())) {
+                sparkConf.put("spark.executor.memory", request.getExecutor().getMemory());
+            }
+            if (request.getExecutor().getInstances() > 0) {
+                sparkConf.put("spark.executor.instances", String.valueOf(request.getExecutor().getInstances()));
+            }
+        }
+        if (request.getSparkConf() != null) {
+            sparkConf.putAll(request.getSparkConf());
+        }
+        if (sparkConf != null) {
+            for (Map.Entry<String, String> entry: sparkConf.entrySet()) {
+                sparkStepConf = sparkStepConf.withArgs("--conf", String.format("%s=%s", entry.getKey(), entry.getValue()));
+            }
+        }
+        sparkStepConf = sparkStepConf.withArgs(request.getMainApplicationFile());
         StepConfig sparkStep = new StepConfig()
                 .withName("Spark Step")
                 .withActionOnFailure(ActionOnFailure.CONTINUE)

@@ -1,6 +1,8 @@
 package org.datapunch.starfish.core;
 
 import org.datapunch.starfish.api.emr.*;
+import org.datapunch.starfish.api.spark.DriverSpec;
+import org.datapunch.starfish.api.spark.ExecutorSpec;
 import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,17 +60,41 @@ public class EmrSparkControllerIT {
         EmrSparkConfiguration sparkConfiguration = new EmrSparkConfiguration();
         EmrSparkController sparkController = new EmrSparkController(sparkConfiguration);
 
-        SubmitSparkApplicationRequest submitSparkApplicationRequest = new SubmitSparkApplicationRequest();
-        submitSparkApplicationRequest.setMainClass("org.apache.spark.examples.SparkPi");
-        submitSparkApplicationRequest.setMainApplicationFile("s3a://datapunch-public-01/jars/spark-examples_2.12-3.1.2.jar");
-        SubmitSparkApplicationResponse submitSparkApplicationResponse = sparkController.submitSparkApplication(clusterFqid, submitSparkApplicationRequest);
-        Assert.assertNotNull(submitSparkApplicationResponse.getClusterFqid());
-        Assert.assertNotNull(submitSparkApplicationResponse.getSubmissionId());
+        {
+            SubmitSparkApplicationRequest submitSparkApplicationRequest = new SubmitSparkApplicationRequest();
+            submitSparkApplicationRequest.setMainClass("org.apache.spark.examples.SparkPi");
+            submitSparkApplicationRequest.setMainApplicationFile("s3a://datapunch-public-01/jars/spark-examples_2.12-3.1.2.jar");
+            SubmitSparkApplicationResponse submitSparkApplicationResponse = sparkController.submitSparkApplication(clusterFqid, submitSparkApplicationRequest);
+            logger.info("Submitted Spark application to cluster {}, got submission id: {}", submitSparkApplicationResponse.getClusterFqid(), submitSparkApplicationResponse.getSubmissionId());
+            Assert.assertNotNull(submitSparkApplicationResponse.getClusterFqid());
+            Assert.assertNotNull(submitSparkApplicationResponse.getSubmissionId());
 
-        GetSparkApplicationResponse getSparkApplicationResponse =  sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
-        Assert.assertNotNull(getSparkApplicationResponse.getClusterFqid());
-        Assert.assertNotNull(getSparkApplicationResponse.getSubmissionId());
-        Assert.assertNotNull(getSparkApplicationResponse.getStatus());
+            GetSparkApplicationResponse getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
+            Assert.assertNotNull(getSparkApplicationResponse.getClusterFqid());
+            Assert.assertNotNull(getSparkApplicationResponse.getSubmissionId());
+            Assert.assertNotNull(getSparkApplicationResponse.getStatus());
+        }
+
+        {
+            SubmitSparkApplicationRequest submitSparkApplicationRequest = new SubmitSparkApplicationRequest();
+            submitSparkApplicationRequest.setMainClass("org.apache.spark.examples.SparkPi");
+            submitSparkApplicationRequest.setMainApplicationFile("s3a://datapunch-public-01/jars/spark-examples_2.12-3.1.2.jar");
+            submitSparkApplicationRequest.setDriver(new DriverSpec());
+            submitSparkApplicationRequest.setExecutor(new ExecutorSpec());
+            submitSparkApplicationRequest.getDriver().setCores(2);
+            submitSparkApplicationRequest.getDriver().setMemory("1g");
+            submitSparkApplicationRequest.getExecutor().setCores(1);
+            submitSparkApplicationRequest.getExecutor().setMemory("700m");
+            SubmitSparkApplicationResponse submitSparkApplicationResponse = sparkController.submitSparkApplication(clusterFqid, submitSparkApplicationRequest);
+            logger.info("Submitted Spark application to cluster {}, got submission id: {}", submitSparkApplicationResponse.getClusterFqid(), submitSparkApplicationResponse.getSubmissionId());
+            Assert.assertNotNull(submitSparkApplicationResponse.getClusterFqid());
+            Assert.assertNotNull(submitSparkApplicationResponse.getSubmissionId());
+
+            GetSparkApplicationResponse getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
+            Assert.assertNotNull(getSparkApplicationResponse.getClusterFqid());
+            Assert.assertNotNull(getSparkApplicationResponse.getSubmissionId());
+            Assert.assertNotNull(getSparkApplicationResponse.getStatus());
+        }
 
         if (deleteClusterAfterTest) {
             DeleteClusterResponse deleteClusterResponse = clusterController.deleteCluster(clusterFqid);
