@@ -7,13 +7,15 @@ import datapunch.org.starfish.api.emr.GetClusterResponse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
+
 public class EmrClusterControllerIT {
     @Test
     public void testController() {
         EmrClusterConfiguration clusterConfiguration = new EmrClusterConfiguration();
 
         // TODO query AWS account and get subnet id
-        clusterConfiguration.setSubnetId("subnet-1147f875");
+        clusterConfiguration.setSubnetIds(Arrays.asList("subnet-1147f875"));
 
         EmrClusterController controller = new EmrClusterController(clusterConfiguration);
 

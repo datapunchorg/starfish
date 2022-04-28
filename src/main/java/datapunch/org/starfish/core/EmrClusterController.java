@@ -8,6 +8,8 @@ import com.amazonaws.services.elasticmapreduce.model.*;
 import com.amazonaws.services.elasticmapreduce.util.StepFactory;
 import datapunch.org.starfish.api.emr.*;
 import datapunch.org.starfish.api.emr.ClusterStatus;
+import datapunch.org.starfish.util.AwsUtil;
+import datapunch.org.starfish.util.ListUtil;
 import datapunch.org.starfish.util.StringUtil;
 
 import java.util.Arrays;
@@ -21,8 +23,6 @@ public class EmrClusterController {
     }
 
     public CreateClusterResponse createCluster(CreateClusterRequest request) {
-        AmazonElasticMapReduce emr = getEmr();
-
         // create a step to enable debugging in the AWS Management Console
         StepFactory stepFactory = new StepFactory();
         StepConfig enabledebugging = new StepConfig()
@@ -33,8 +33,12 @@ public class EmrClusterController {
         // specify applications to be installed and configured when EMR creates the cluster
         Application spark = new Application().withName("Spark");
 
+        String region = request.getRegion();
+        if (StringUtil.isNullOrEmpty(region) && !StringUtil.isNullOrEmpty(config.getRegion())) {
+            region = config.getRegion();
+        }
         String clusterName = request.getClusterName();
-        if (clusterName == null || clusterName.isEmpty()) {
+        if (StringUtil.isNullOrEmpty(clusterName)) {
             clusterName = UUID.randomUUID().toString();
         }
         String releaseLabel = request.getEmrRelease();
@@ -42,37 +46,62 @@ public class EmrClusterController {
             releaseLabel = config.getEmrRelease();
         }
         String subnetId = request.getSubnetId();
-        if (StringUtil.isNullOrEmpty(subnetId) && !StringUtil.isNullOrEmpty(config.getSubnetId())) {
-            subnetId = config.getSubnetId();
+        if (StringUtil.isNullOrEmpty(subnetId) && !ListUtil.isNullOrEmpty(config.getSubnetIds())) {
+            subnetId = ListUtil.getRandomValue(config.getSubnetIds());
+        }
+        String logUri = request.getLogUri();
+        if (StringUtil.isNullOrEmpty(logUri) && !StringUtil.isNullOrEmpty(config.getLogUri())) {
+            logUri = config.getLogUri();
+        }
+        String serviceRoleName = request.getServiceRoleName();
+        if (StringUtil.isNullOrEmpty(serviceRoleName) && !StringUtil.isNullOrEmpty(config.getServiceRoleName())) {
+            serviceRoleName = config.getServiceRoleName();
+        }
+        String jobFlowRoleName = request.getServiceRoleName();
+        if (StringUtil.isNullOrEmpty(jobFlowRoleName) && !StringUtil.isNullOrEmpty(config.getJobFlowRoleName())) {
+            jobFlowRoleName = config.getJobFlowRoleName();
+        }
+        int instanceCount = request.getInstanceCount();
+        if (instanceCount == 0) {
+            instanceCount = 3;
+        }
+        String masterInstanceType = request.getMasterInstanceType();
+        if (StringUtil.isNullOrEmpty(masterInstanceType) && !StringUtil.isNullOrEmpty(config.getMasterInstanceType())) {
+            masterInstanceType = config.getMasterInstanceType();
+        }
+        String slaveInstanceType = request.getSlaveInstanceType();
+        if (StringUtil.isNullOrEmpty(slaveInstanceType) && !StringUtil.isNullOrEmpty(config.getSlaveInstanceType())) {
+            slaveInstanceType = config.getSlaveInstanceType();
         }
 
         // create the cluster
+        AmazonElasticMapReduce emr = getEmr(region);
         RunJobFlowRequest runJobFlowRequest = new RunJobFlowRequest()
                 .withName(clusterName)
                 .withReleaseLabel(releaseLabel)
                 .withSteps(enabledebugging)
                 .withApplications(spark)
-                .withLogUri("s3://path/to/my/emr/logs")
-                .withServiceRole("EMR_DefaultRole") // replace the default with a custom IAM service role if one is used
-                .withJobFlowRole("EMR_EC2_DefaultRole") // replace the default with a custom EMR role for the EC2 instance profile if one is used
+                .withLogUri(logUri)
+                .withServiceRole(serviceRoleName)
+                .withJobFlowRole(jobFlowRoleName)
                 .withInstances(new JobFlowInstancesConfig()
                         .withEc2SubnetId(subnetId)
                         // .withEc2KeyName("myEc2Key")
-                        .withInstanceCount(3)
+                        .withInstanceCount(instanceCount)
                         .withKeepJobFlowAliveWhenNoSteps(true)
-                        .withMasterInstanceType("m4.large")
-                        .withSlaveInstanceType("m4.large"));
-
+                        .withMasterInstanceType(masterInstanceType)
+                        .withSlaveInstanceType(slaveInstanceType));
         RunJobFlowResult runJobFlowResult = emr.runJobFlow(runJobFlowRequest);
         CreateClusterResponse response = new CreateClusterResponse();
-        response.setClusterId(runJobFlowResult.getJobFlowId());
+        response.setClusterId(String.format("%s-%s", region, runJobFlowResult.getJobFlowId()));
         return response;
     }
 
     public GetClusterResponse getCluster(String id) {
-        AmazonElasticMapReduce emr = getEmr();
+        EmrClusterFqid clusterFqid = getClusterFqid(id);
+        AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
         DescribeClusterRequest describeClusterRequest = new DescribeClusterRequest();
-        describeClusterRequest.setClusterId(id);
+        describeClusterRequest.setClusterId(clusterFqid.getClusterId());
         DescribeClusterResult describeClusterResult = emr.describeCluster(describeClusterRequest);
         ClusterStatus status = new ClusterStatus();
         status.setState(describeClusterResult.getCluster().getStatus().getState());
@@ -85,21 +114,31 @@ public class EmrClusterController {
     }
 
     public DeleteClusterResponse deleteCluster(String id) {
-        AmazonElasticMapReduce emr = getEmr();
+        EmrClusterFqid clusterFqid = getClusterFqid(id);
+        AmazonElasticMapReduce emr = getEmr(clusterFqid.getRegion());
         TerminateJobFlowsRequest terminateJobFlowsRequest = new TerminateJobFlowsRequest();
-        terminateJobFlowsRequest.setJobFlowIds(Arrays.asList(id));
+        terminateJobFlowsRequest.setJobFlowIds(Arrays.asList(clusterFqid.getClusterId()));
         emr.terminateJobFlows(terminateJobFlowsRequest);
         DeleteClusterResponse response = new DeleteClusterResponse();
         response.setClusterId(id);
         return response;
     }
 
-    private AmazonElasticMapReduce getEmr() {
+    private EmrClusterFqid getClusterFqid(String id) {
+        String region = AwsUtil.getRegionFromPrefix(id);
+        id = id.substring(region.length());
+        if (id.startsWith("-")) {
+            id = id.substring(1);
+        }
+        return new EmrClusterFqid(region, id);
+    }
+
+    private AmazonElasticMapReduce getEmr(String region) {
         DefaultAWSCredentialsProviderChain defaultAWSCredentialsProviderChain = new DefaultAWSCredentialsProviderChain();
         // create an EMR client using the credentials and region specified in order to create the cluster
         return AmazonElasticMapReduceClientBuilder.standard()
                 .withCredentials(defaultAWSCredentialsProviderChain)
-                .withRegion(Regions.US_WEST_1)
+                .withRegion(region)
                 .build();
     }
 }
