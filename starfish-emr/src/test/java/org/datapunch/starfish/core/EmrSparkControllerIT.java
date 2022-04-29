@@ -14,10 +14,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class EmrSparkControllerIT {
     private static final Logger logger = LoggerFactory.getLogger(EmrSparkControllerIT.class);
@@ -33,7 +30,7 @@ public class EmrSparkControllerIT {
     public void beforeTest() {
         clusterConfiguration = new EmrClusterConfiguration();
 
-        List<String> subnetIds = Ec2Helper.getSubnetIds("us-west-1");
+        List<String> subnetIds = Ec2Helper.getSubnetIds("us-east-1");
         clusterConfiguration.setSubnetIds(subnetIds);
 
         EmrClusterController clusterController = new EmrClusterController(clusterConfiguration);
@@ -47,11 +44,13 @@ public class EmrSparkControllerIT {
         CreateClusterResponse createClusterResponse = clusterController.createCluster(createClusterRequest);
 
         clusterController.waitClusterReadyOrTerminated(createClusterResponse.getClusterFqid(), 30*60*1000, 10000);
+
         GetClusterResponse getClusterResponse = clusterController.getCluster(createClusterResponse.getClusterFqid());
         Assert.assertEquals(getClusterResponse.getClusterFqid(), createClusterResponse.getClusterFqid());
         Assert.assertNotNull(getClusterResponse.getStatus());
 
         clusterFqid = getClusterResponse.getClusterFqid();
+        logger.info("Created cluster {}", clusterFqid);
     }
 
     @AfterTest
@@ -101,6 +100,8 @@ public class EmrSparkControllerIT {
             submitSparkApplicationRequest.getDriver().setMemory("1g");
             submitSparkApplicationRequest.getExecutor().setCores(1);
             submitSparkApplicationRequest.getExecutor().setMemory("700m");
+            submitSparkApplicationRequest.setSparkConf(new HashMap<>());
+            submitSparkApplicationRequest.getSparkConf().put("spark.conf.example1", "value1");
             SubmitSparkApplicationResponse submitSparkApplicationResponse = sparkController.submitSparkApplication(clusterFqid, submitSparkApplicationRequest);
             logger.info("Submitted Spark application to cluster {}, got submission id: {}", submitSparkApplicationResponse.getClusterFqid(), submitSparkApplicationResponse.getSubmissionId());
             Assert.assertNotNull(submitSparkApplicationResponse.getClusterFqid());
