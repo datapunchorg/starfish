@@ -1,9 +1,7 @@
 package org.datapunch.starfish.core;
 
 import org.datapunch.starfish.api.emr.*;
-import org.datapunch.starfish.api.spark.DriverSpec;
-import org.datapunch.starfish.api.spark.ExecutorSpec;
-import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
+import org.datapunch.starfish.api.spark.*;
 import org.datapunch.starfish.awslib.Ec2Helper;
 import org.datapunch.starfish.util.StringUtil;
 import org.slf4j.Logger;
@@ -79,14 +77,12 @@ public class EmrSparkControllerIT {
             Assert.assertNotNull(submitSparkApplicationResponse.getSubmissionId());
 
             GetSparkApplicationResponse getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
-            Assert.assertNotNull(getSparkApplicationResponse.getClusterFqid());
-            Assert.assertNotNull(getSparkApplicationResponse.getSubmissionId());
             Assert.assertNotNull(getSparkApplicationResponse.getStatus());
 
             sparkController.waitSparkApplicationFinished(clusterFqid, submitSparkApplicationResponse.getSubmissionId(), 10*60*1000, 10000);
 
             getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
-            Assert.assertEquals(getSparkApplicationResponse.getStatus().getApplicationState().getState(), "COMPLETED");
+            Assert.assertEquals(getSparkApplicationResponse.getStatus().getState(), "COMPLETED");
         }
 
         {
@@ -107,14 +103,12 @@ public class EmrSparkControllerIT {
             Assert.assertNotNull(submitSparkApplicationResponse.getSubmissionId());
 
             GetSparkApplicationResponse getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
-            Assert.assertNotNull(getSparkApplicationResponse.getClusterFqid());
-            Assert.assertNotNull(getSparkApplicationResponse.getSubmissionId());
             Assert.assertNotNull(getSparkApplicationResponse.getStatus());
 
             sparkController.waitSparkApplicationFinished(clusterFqid, submitSparkApplicationResponse.getSubmissionId(), 10*60*1000, 10000);
 
             getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
-            Assert.assertEquals(getSparkApplicationResponse.getStatus().getApplicationState().getState(), "COMPLETED");
+            Assert.assertEquals(getSparkApplicationResponse.getStatus().getState(), "COMPLETED");
         }
     }
 }

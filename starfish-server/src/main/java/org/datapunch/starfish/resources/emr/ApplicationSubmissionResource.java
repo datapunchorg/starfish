@@ -1,8 +1,9 @@
 package org.datapunch.starfish.resources.emr;
 
 import com.codahale.metrics.annotation.Timed;
-import org.datapunch.starfish.api.emr.*;
+import org.datapunch.starfish.api.spark.GetSparkApplicationResponse;
 import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
+import org.datapunch.starfish.api.spark.SubmitSparkApplicationResponse;
 import org.datapunch.starfish.core.EmrApplicationSubmissionConfiguration;
 import org.datapunch.starfish.core.EmrSparkController;
 

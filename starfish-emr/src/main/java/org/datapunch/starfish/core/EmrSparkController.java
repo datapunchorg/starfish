@@ -2,10 +2,7 @@ package org.datapunch.starfish.core;
 
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduce;
 import com.amazonaws.services.elasticmapreduce.model.*;
-import org.datapunch.starfish.api.emr.*;
-import org.datapunch.starfish.api.spark.SparkApplicationState;
-import org.datapunch.starfish.api.spark.SparkApplicationStatus;
-import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
+import org.datapunch.starfish.api.spark.*;
 import org.datapunch.starfish.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,14 +89,10 @@ public class EmrSparkController {
         if (describeStepResult.getStep().getStatus().getFailureDetails() != null) {
             errorMessage = describeStepResult.getStep().getStatus().getFailureDetails().toString();
         }
-        SparkApplicationState sparkApplicationState = new SparkApplicationState();
-        sparkApplicationState.setState(state);
-        sparkApplicationState.setErrorMessage(errorMessage);
         SparkApplicationStatus sparkApplicationStatus = new SparkApplicationStatus();
-        sparkApplicationStatus.setApplicationState(sparkApplicationState);
+        sparkApplicationStatus.setState(state);
+        sparkApplicationStatus.setApplicationMessage(errorMessage);
         GetSparkApplicationResponse response = new GetSparkApplicationResponse();
-        response.setClusterFqid(clusterFqidStr);
-        response.setSubmissionId(submissionId);
         response.setStatus(sparkApplicationStatus);
         return response;
     }
@@ -110,15 +103,13 @@ public class EmrSparkController {
         while (System.currentTimeMillis() - startTime <= maxWaitMillis) {
             GetSparkApplicationResponse getSparkApplicationResponse = getSparkApplication(clusterFqidStr, submissionId);
             if (getSparkApplicationResponse.getStatus() != null) {
-                if (getSparkApplicationResponse.getStatus().getApplicationState() != null) {
-                    state = getSparkApplicationResponse.getStatus().getApplicationState().getState();
-                    if (state != null) {
-                        if (finishedStatesLowerCase.contains(state.toLowerCase())) {
-                            logger.info("Spark application {} (cluster: {}) finished (state {})", submissionId, clusterFqidStr, state);
-                            return;
-                        } else {
-                            logger.info("Spark application {} (cluster: {}) not finished (state {})", submissionId, clusterFqidStr, state);
-                        }
+                state = getSparkApplicationResponse.getStatus().getState();
+                if (state != null) {
+                    if (finishedStatesLowerCase.contains(state.toLowerCase())) {
+                        logger.info("Spark application {} (cluster: {}) finished (state {})", submissionId, clusterFqidStr, state);
+                        return;
+                    } else {
+                        logger.info("Spark application {} (cluster: {}) not finished (state {})", submissionId, clusterFqidStr, state);
                     }
                 }
             }

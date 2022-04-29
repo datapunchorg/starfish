@@ -1,13 +1,31 @@
 package org.datapunch.starfish.api.spark;
 
 public class SparkApplicationStatus {
-    private SparkApplicationState applicationState;
+    private String submissionId;
+    private String state;
+    private String applicationMessage;
 
-    public SparkApplicationState getApplicationState() {
-        return applicationState;
+    public String getSubmissionId() {
+        return submissionId;
     }
 
-    public void setApplicationState(SparkApplicationState applicationState) {
-        this.applicationState = applicationState;
+    public void setSubmissionId(String submissionId) {
+        this.submissionId = submissionId;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getApplicationMessage() {
+        return applicationMessage;
+    }
+
+    public void setApplicationMessage(String applicationMessage) {
+        this.applicationMessage = applicationMessage;
     }
 }

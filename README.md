@@ -31,7 +31,7 @@ brew install jq
 Send requests to the server using `curl`:
 
 ```
-export response=$(curl -X POST localhost:8080/starfish/v1/emr/clusters -H 'Content-Type: application/json' -d '{"emrRelease": "emr-6.5.0"}')
+export response=$(curl -X POST localhost:8080/starfish/v1/emr/clusters -H 'Content-Type: application/json' -d '{"instanceCount":3,"masterInstanceType":"r4.xlarge","slaveInstanceType":"r4.xlarge"}')
 echo $response
 
 export clusterFqid=$(echo $response | jq -r '.clusterFqid')
