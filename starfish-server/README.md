@@ -1,17 +1,19 @@
 # starfish
 
-How to start the starfish application
+This is a REST API Gateway to create EMR cluster and submit Spark application.
+
+How to start the server application
 ---
 
-1. Run `mvn clean package` to build your application
+1. Run `mvn clean package` to build the jar file
 2. Edit file `starfish-server/config.yml` to use your own configure values
-3. Start application with `java -jar starfish-server/target/starfish-server-1.0-SNAPSHOT.jar server starfish-server/config.yml`
-1. To check that your application is running enter url `http://localhost:8080/starfish/v1/`
+3. Start server with `java -jar starfish-server/target/starfish-server-1.0-SNAPSHOT.jar server starfish-server/config.yml`
+1. To check that your server is running, browse url `http://localhost:8080/starfish/v1/`
 
 Health Check
 ---
 
-To see your applications health enter url `http://localhost:8081/healthcheck`
+To see your server health, browse url `http://localhost:8080/admin/healthcheck`
 
 Request Examples: Cluster
 ---
