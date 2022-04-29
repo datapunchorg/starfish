@@ -52,31 +52,7 @@ public class Ec2Helper {
     }
 
     public static void main(String[] args) {
-        getSubnetIds("us-west-1");
+        getSubnetIds("us-east-1");
     }
 
-    public static void describeEC2Vpcs(Ec2Client ec2, String vpcId) {
-
-        try {
-            DescribeVpcsRequest request = DescribeVpcsRequest.builder()
-                    .vpcIds(vpcId)
-                    .build();
-
-            DescribeVpcsResponse response =
-                    ec2.describeVpcs(request);
-
-            for (Vpc vpc : response.vpcs()) {
-                System.out.printf(
-                        "Found VPC with id %s, " +
-                                "vpc state %s " +
-                                "and tennancy %s",
-                        vpc.vpcId(),
-                        vpc.stateAsString(),
-                        vpc.instanceTenancyAsString());
-            }
-        } catch (Ec2Exception e) {
-            System.err.println(e.awsErrorDetails().errorMessage());
-            System.exit(1);
-        }
-    }
 }

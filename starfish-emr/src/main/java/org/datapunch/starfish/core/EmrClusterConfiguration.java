@@ -18,7 +18,7 @@ public class EmrClusterConfiguration {
     private List<String> clusterConfigurationFiles;
 
     public EmrClusterConfiguration() {
-        this.region = "us-west-1";
+        this.region = "us-east-1";
         this.emrRelease = "emr-6.5.0";
         this.serviceRoleName = "EMR_DefaultRole";
         this.jobFlowRoleName = "EMR_EC2_DefaultRole";

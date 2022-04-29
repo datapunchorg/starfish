@@ -18,7 +18,7 @@ public class EmrClusterControllerIT {
     public void testController() {
         EmrClusterConfiguration clusterConfiguration = new EmrClusterConfiguration();
 
-        List<String> subnetIds = Ec2Helper.getSubnetIds("us-west-1");
+        List<String> subnetIds = Ec2Helper.getSubnetIds("us-east-1");
         clusterConfiguration.setSubnetIds(subnetIds);
 
         EmrClusterController controller = new EmrClusterController(clusterConfiguration);
