@@ -76,13 +76,13 @@ public class EmrSparkControllerIT {
             Assert.assertNotNull(submitSparkApplicationResponse.getClusterFqid());
             Assert.assertNotNull(submitSparkApplicationResponse.getSubmissionId());
 
-            GetSparkApplicationResponse getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
-            Assert.assertNotNull(getSparkApplicationResponse.getStatus());
+            GetApplicationSubmissionResponse getApplicationSubmissionResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
+            Assert.assertNotNull(getApplicationSubmissionResponse.getStatus());
 
             sparkController.waitSparkApplicationFinished(clusterFqid, submitSparkApplicationResponse.getSubmissionId(), 10*60*1000, 10000);
 
-            getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
-            Assert.assertEquals(getSparkApplicationResponse.getStatus().getState(), "COMPLETED");
+            getApplicationSubmissionResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
+            Assert.assertEquals(getApplicationSubmissionResponse.getStatus().getState(), "COMPLETED");
         }
 
         {
@@ -102,13 +102,13 @@ public class EmrSparkControllerIT {
             Assert.assertNotNull(submitSparkApplicationResponse.getClusterFqid());
             Assert.assertNotNull(submitSparkApplicationResponse.getSubmissionId());
 
-            GetSparkApplicationResponse getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
-            Assert.assertNotNull(getSparkApplicationResponse.getStatus());
+            GetApplicationSubmissionResponse getApplicationSubmissionResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
+            Assert.assertNotNull(getApplicationSubmissionResponse.getStatus());
 
             sparkController.waitSparkApplicationFinished(clusterFqid, submitSparkApplicationResponse.getSubmissionId(), 10*60*1000, 10000);
 
-            getSparkApplicationResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
-            Assert.assertEquals(getSparkApplicationResponse.getStatus().getState(), "COMPLETED");
+            getApplicationSubmissionResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
+            Assert.assertEquals(getApplicationSubmissionResponse.getStatus().getState(), "COMPLETED");
         }
     }
 }

@@ -77,7 +77,7 @@ public class EmrSparkController {
         return response;
     }
 
-    public GetSparkApplicationResponse getSparkApplication(String clusterFqidStr, String submissionId) {
+    public GetApplicationSubmissionResponse getSparkApplication(String clusterFqidStr, String submissionId) {
         EmrClusterFqid clusterFqid = new EmrClusterFqid(clusterFqidStr);
         AmazonElasticMapReduce emr = EmrHelper.getEmr(clusterFqid.getRegion());
         DescribeStepRequest describeStepRequest = new DescribeStepRequest();
@@ -89,11 +89,11 @@ public class EmrSparkController {
         if (describeStepResult.getStep().getStatus().getFailureDetails() != null) {
             errorMessage = describeStepResult.getStep().getStatus().getFailureDetails().toString();
         }
-        SparkApplicationStatus sparkApplicationStatus = new SparkApplicationStatus();
-        sparkApplicationStatus.setState(state);
-        sparkApplicationStatus.setApplicationMessage(errorMessage);
-        GetSparkApplicationResponse response = new GetSparkApplicationResponse();
-        response.setStatus(sparkApplicationStatus);
+        ApplicationSubmissionStatus applicationSubmissionStatus = new ApplicationSubmissionStatus();
+        applicationSubmissionStatus.setState(state);
+        applicationSubmissionStatus.setApplicationMessage(errorMessage);
+        GetApplicationSubmissionResponse response = new GetApplicationSubmissionResponse();
+        response.setStatus(applicationSubmissionStatus);
         return response;
     }
 
@@ -101,9 +101,9 @@ public class EmrSparkController {
         long startTime = System.currentTimeMillis();
         String state = null;
         while (System.currentTimeMillis() - startTime <= maxWaitMillis) {
-            GetSparkApplicationResponse getSparkApplicationResponse = getSparkApplication(clusterFqidStr, submissionId);
-            if (getSparkApplicationResponse.getStatus() != null) {
-                state = getSparkApplicationResponse.getStatus().getState();
+            GetApplicationSubmissionResponse getApplicationSubmissionResponse = getSparkApplication(clusterFqidStr, submissionId);
+            if (getApplicationSubmissionResponse.getStatus() != null) {
+                state = getApplicationSubmissionResponse.getStatus().getState();
                 if (state != null) {
                     if (finishedStatesLowerCase.contains(state.toLowerCase())) {
                         logger.info("Spark application {} (cluster: {}) finished (state {})", submissionId, clusterFqidStr, state);

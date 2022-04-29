@@ -1,6 +1,6 @@
 package org.datapunch.starfish.api.spark;
 
-public class SparkApplicationStatus {
+public class ApplicationSubmissionStatus {
     private String submissionId;
     private String state;
     private String applicationMessage;

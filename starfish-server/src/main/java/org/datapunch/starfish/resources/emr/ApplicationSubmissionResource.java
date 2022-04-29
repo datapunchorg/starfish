@@ -1,7 +1,7 @@
 package org.datapunch.starfish.resources.emr;
 
 import com.codahale.metrics.annotation.Timed;
-import org.datapunch.starfish.api.spark.GetSparkApplicationResponse;
+import org.datapunch.starfish.api.spark.GetApplicationSubmissionResponse;
 import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
 import org.datapunch.starfish.api.spark.SubmitSparkApplicationResponse;
 import org.datapunch.starfish.core.EmrApplicationSubmissionConfiguration;
@@ -34,7 +34,7 @@ public class ApplicationSubmissionResource {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{clusterId}/submissions/{submissionId}")
-    public GetSparkApplicationResponse getSparkApplication(@PathParam("clusterId") String clusterId, @PathParam("submissionId") String submissionId) {
+    public GetApplicationSubmissionResponse getSparkApplication(@PathParam("clusterId") String clusterId, @PathParam("submissionId") String submissionId) {
         return controller.getSparkApplication(clusterId, submissionId);
     }
 }
