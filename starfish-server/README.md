@@ -7,8 +7,9 @@ How to start the server application
 
 1. Run `mvn clean package` to build the jar file
 2. Edit file `starfish-server/config.yml` to use your own configure values
-3. Start server with `java -jar starfish-server/target/starfish-server-1.0-SNAPSHOT.jar server starfish-server/config.yml`
-1. To check that your server is running, browse url `http://localhost:8080/starfish/v1/`
+3. Config your local AWS environment to make sure having permission to do EMR operations
+4. Start server with `java -jar starfish-server/target/starfish-server-1.0-SNAPSHOT.jar server starfish-server/config.yml`
+5. To check that your server is running, browse url `http://localhost:8080/starfish/v1/`
 
 Health Check
 ---
