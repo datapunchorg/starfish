@@ -1,18 +1,18 @@
 package org.datapunch.starfish.db;
 
 public class SparkApplicationSubmissionDbEntity {
-    private Long createTimeMillis;
+    private Long createTime;
     private String environment = "default";
     private String cluster;
     private String submissionId;
     private String submissionRequest;
 
-    public Long getCreateTimeMillis() {
-        return createTimeMillis;
+    public Long getCreateTime() {
+        return createTime;
     }
 
-    public void setCreateTimeMillis(Long createTimeMillis) {
-        this.createTimeMillis = createTimeMillis;
+    public void setCreateTime(Long createTime) {
+        this.createTime = createTime;
     }
 
     public String getEnvironment() {

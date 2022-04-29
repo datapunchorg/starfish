@@ -31,7 +31,7 @@ public class SparkApplicationSubmissionDao extends BaseJdbcDao {
 
     public void insertOrUpdate(SparkApplicationSubmissionDbEntity entity) {
         Map map = new HashMap();
-        map.put("createTime", entity.getCreateTimeMillis());
+        map.put("createTime", entity.getCreateTime());
         map.put("environment", entity.getEnvironment());
         map.put("cluster", entity.getCluster());
         map.put("submissionId", entity.getSubmissionId());
