@@ -593,16 +593,16 @@ public abstract class BaseJdbcDao implements AutoCloseable {
         }
     }
 
-    private JdbcUtils.DBTYPE getDbType() {
+    private DbType getDbType() {
         String str = connectionProvider.getConnectionString().toLowerCase();
         if (str.startsWith("jdbc:postgre") || str.startsWith("postgre") || str.contains("MODE=PostgreSQL".toLowerCase())) {
-            return JdbcUtils.DBTYPE.POSTGRESQL;
+            return DbType.POSTGRESQL;
         } else {
-            return JdbcUtils.DBTYPE.OTHER;
+            return DbType.OTHER;
         }
     }
 
     private boolean isPostgreSQL() {
-        return getDbType() == JdbcUtils.DBTYPE.POSTGRESQL;
+        return getDbType() == DbType.POSTGRESQL;
     }
 }

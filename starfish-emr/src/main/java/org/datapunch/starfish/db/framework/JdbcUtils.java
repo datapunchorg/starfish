@@ -30,7 +30,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class JdbcUtils {
-    public enum DBTYPE {POSTGRESQL, OTHER}
 
     public static String getCreateTableSql(
             Class<?> clazz,
@@ -39,7 +38,7 @@ public class JdbcUtils {
             Collection<String> indexFields,
             Collection<String> timestampFields,
             Collection<String> textFields,
-            DBTYPE dbtype) {
+            DbType dbtype) {
         return getCreateTableSql(
                 clazz, tableName, null, primaryKeys, indexFields, timestampFields, textFields, dbtype);
     }
@@ -52,7 +51,7 @@ public class JdbcUtils {
             Collection<String> indexFields,
             Collection<String> timestampFields,
             Collection<String> textFields,
-            DBTYPE dbtype) {
+            DbType dbtype) {
         return getCreateTableSql(
                 clazz,
                 tableName,
@@ -74,7 +73,7 @@ public class JdbcUtils {
             Collection<String> timestampFields,
             Collection<String> textFields,
             String indexNamePrefix,
-            DBTYPE dbtype) {
+            DbType dbtype) {
         if (textFields == null) {
             textFields = new ArrayList<>();
         }
@@ -231,14 +230,14 @@ public class JdbcUtils {
             boolean isPrimaryKeyOrUniqueKey,
             boolean isDatetime,
             boolean isText,
-            DBTYPE dbtype) {
+            DbType dbtype) {
         int maxVarcharLength = isPrimaryKeyOrUniqueKey ? 150 : 250;
         String sqlTypeForString = isText ? "TEXT" : String.format("VARCHAR(%s)", maxVarcharLength);
-        if (isText && dbtype == DBTYPE.POSTGRESQL) {
+        if (isText && dbtype == DbType.POSTGRESQL) {
             sqlTypeForString = "VARCHAR(1024000)";
         }
         if (isDatetime || beanProperty.getPropertyType().equals(Date.class)) {
-            if (dbtype == DBTYPE.POSTGRESQL) {
+            if (dbtype == DbType.POSTGRESQL) {
                 return "TIMESTAMP";
             } else {
                 return "DATETIME";

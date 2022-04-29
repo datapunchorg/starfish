@@ -105,7 +105,7 @@ public class SingleTableJdbcWriter implements AutoCloseable {
         return connectionProvider.getConnectionString();
     }
 
-    public void write(Object object, Collection<String> indexColumns, JdbcUtils.DBTYPE dbtype) {
+    public void write(Object object, Collection<String> indexColumns, DbType dbtype) {
         if (object == null) {
             logger.warn("Ignored null object");
             return;
@@ -160,7 +160,7 @@ public class SingleTableJdbcWriter implements AutoCloseable {
                         StringUtils.join(nonNullFields, ", "),
                         StringUtils.join(Collections.nCopies(nonNullFields.size(), "?"), ", "),
                         StringUtils.join(updateList, ", "));
-        boolean postgresqlMode = dbtype == JdbcUtils.DBTYPE.POSTGRESQL;
+        boolean postgresqlMode = dbtype == DbType.POSTGRESQL;
         if (postgresqlMode) {
             updateList = new ArrayList<>();
             for (int i = 0; i < nonNullFields.size(); i++) {
