@@ -4,18 +4,20 @@ import org.datapunch.starfish.api.emr.CreateClusterRequest;
 import org.datapunch.starfish.api.emr.CreateClusterResponse;
 import org.datapunch.starfish.api.emr.DeleteClusterResponse;
 import org.datapunch.starfish.api.emr.GetClusterResponse;
+import org.datapunch.starfish.awslib.Ec2Helper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class EmrClusterControllerIT {
     @Test
     public void testController() {
         EmrClusterConfiguration clusterConfiguration = new EmrClusterConfiguration();
 
-        // TODO query AWS account and get subnet id
-        clusterConfiguration.setSubnetIds(Arrays.asList("subnet-1147f875"));
+        List<String> subnetIds = Ec2Helper.getSubnetIds("us-west-1");
+        clusterConfiguration.setSubnetIds(subnetIds);
 
         EmrClusterController controller = new EmrClusterController(clusterConfiguration);
 

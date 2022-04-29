@@ -13,7 +13,7 @@
 
     <groupId>org.datapunch</groupId>
     <artifactId>starfish-server</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${project.parent.version}</version>
     <packaging>jar</packaging>
 
     <name>starfish-server</name>

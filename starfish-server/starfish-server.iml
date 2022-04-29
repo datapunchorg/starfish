@@ -117,5 +117,33 @@
     <orderEntry type="library" scope="TEST" name="Maven: com.beust:jcommander:1.72" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache-extras.beanshell:bsh:2.0b6" level="project" />
     <orderEntry type="module" module-name="starfish-emr" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:ec2:2.16.60" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:aws-query-protocol:2.16.60" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:protocol-core:2.16.60" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:sdk-core:2.16.60" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:profiles:2.16.60" level="project" />
+    <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.3" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:auth:2.16.60" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.eventstream:eventstream:1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:http-client-spi:2.16.60" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:regions:2.16.60" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:annotations:2.16.60" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:utils:2.16.60" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:aws-core:2.16.60" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.awssdk:metrics-spi:2.16.60" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: software.amazon.awssdk:apache-client:2.16.60" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: software.amazon.awssdk:netty-nio-client:2.16.60" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-codec-http:4.1.63.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-codec-http2:4.1.63.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-codec:4.1.63.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-transport:4.1.63.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-resolver:4.1.63.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-common:4.1.63.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-buffer:4.1.63.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-handler:4.1.63.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-transport-native-epoll:linux-x86_64:4.1.63.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-transport-native-unix-common:4.1.63.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.typesafe.netty:netty-reactive-streams-http:2.0.4" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.typesafe.netty:netty-reactive-streams:2.0.4" level="project" />
   </component>
 </module>

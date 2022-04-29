@@ -4,6 +4,7 @@ import org.datapunch.starfish.api.emr.*;
 import org.datapunch.starfish.api.spark.DriverSpec;
 import org.datapunch.starfish.api.spark.ExecutorSpec;
 import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
+import org.datapunch.starfish.awslib.Ec2Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -14,20 +15,23 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class EmrSparkControllerIT {
     private static final Logger logger = LoggerFactory.getLogger(EmrSparkControllerIT.class);
+
+    private EmrClusterConfiguration clusterConfiguration;
 
     private String clusterFqid;
     private boolean deleteClusterAfterTest = true;
 
     @BeforeTest
     public void beforeTest() {
-        EmrClusterConfiguration clusterConfiguration = new EmrClusterConfiguration();
+        clusterConfiguration = new EmrClusterConfiguration();
 
-        // TODO query AWS account and get subnet id
-        clusterConfiguration.setSubnetIds(Arrays.asList("subnet-1147f875"));
+        List<String> subnetIds = Ec2Helper.getSubnetIds("us-west-1");
+        clusterConfiguration.setSubnetIds(subnetIds);
 
         EmrClusterController clusterController = new EmrClusterController(clusterConfiguration);
 
@@ -48,11 +52,6 @@ public class EmrSparkControllerIT {
     public void afterTest() {
         if (deleteClusterAfterTest) {
             logger.info("Deleting cluster {}", clusterFqid);
-
-            EmrClusterConfiguration clusterConfiguration = new EmrClusterConfiguration();
-
-            // TODO query AWS account and get subnet id
-            clusterConfiguration.setSubnetIds(Arrays.asList("subnet-1147f875"));
 
             EmrClusterController clusterController = new EmrClusterController(clusterConfiguration);
 

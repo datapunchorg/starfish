@@ -27,3 +27,4 @@ hs_err_pid*
 starfish.iml
 **/dependency-reduced-pom.xml
 dependency-reduced-pom.xml
+*.iml
