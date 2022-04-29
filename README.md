@@ -16,14 +16,21 @@ Health Check
 
 To see your server health, browse url `http://localhost:8080/admin/healthcheck`
 
-Request Examples: Cluster
+Request Examples: EMR Cluster
 ---
 
 ## Create EMR Cluster
 
+Install `jq` to parse JSON response from `curl` command:
+
 ```
 brew install jq
 
+```
+
+Send requests to the server using `curl`:
+
+```
 export response=$(curl -X POST localhost:8080/starfish/v1/emr/clusters -H 'Content-Type: application/json' -d '{"emrRelease": "emr-6.5.0"}')
 echo $response
 
