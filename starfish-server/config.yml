@@ -7,6 +7,14 @@ server:
     type: http
     port: 8080
 
+emrClusterConfiguration:
+  region: us-east-1
+  subnetIds:
+    - subnet-cc37b0c0
+    - subnet-8ab961b6
+    - subnet-49078264
+  logUri: s3://datapunch-public-writeable-us-west-1/upload/emr
+
 logging:
   level: INFO
   loggers:

@@ -10,7 +10,7 @@ public class CreateClusterRequest {
     private String logUri;
     private String serviceRoleName;
     private String jobFlowRoleName;
-    private int instanceCount;
+    private Integer instanceCount;
     private String masterInstanceType;
     private String slaveInstanceType;
 
@@ -85,12 +85,12 @@ public class CreateClusterRequest {
     }
 
     @JsonProperty
-    public int getInstanceCount() {
+    public Integer getInstanceCount() {
         return instanceCount;
     }
 
     @JsonProperty
-    public void setInstanceCount(int instanceCount) {
+    public void setInstanceCount(Integer instanceCount) {
         this.instanceCount = instanceCount;
     }
 

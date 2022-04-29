@@ -6,6 +6,7 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.datapunch.starfish.resources.emr.SparkResource;
+import org.datapunch.starfish.resources.root.RootResource;
 
 public class ServerApplication extends Application<ServerConfiguration> {
 
@@ -30,9 +31,11 @@ public class ServerApplication extends Application<ServerConfiguration> {
                 new TemplateHealthCheck("TODO");
         environment.healthChecks().register("check01", healthCheck);
 
+        final RootResource rootResource = new RootResource();
         final ClusterResource clusterResource = new ClusterResource(configuration.getEmrClusterConfiguration());
         final SparkResource sparkResource = new SparkResource(configuration.getSparkConfiguration());
 
+        environment.jersey().register(rootResource);
         environment.jersey().register(clusterResource);
         environment.jersey().register(sparkResource);
     }

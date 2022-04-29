@@ -67,8 +67,8 @@ public class EmrClusterController {
         if (StringUtil.isNullOrEmpty(jobFlowRoleName) && !StringUtil.isNullOrEmpty(config.getJobFlowRoleName())) {
             jobFlowRoleName = config.getJobFlowRoleName();
         }
-        int instanceCount = request.getInstanceCount();
-        if (instanceCount == 0) {
+        Integer instanceCount = request.getInstanceCount();
+        if (instanceCount == null) {
             instanceCount = 3;
         }
         String masterInstanceType = request.getMasterInstanceType();

@@ -1,5 +1,2 @@
 # starfish
 
-TODO
-
-- Support PostgreSQL
