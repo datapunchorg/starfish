@@ -97,9 +97,12 @@ public class EmrClusterController {
                         .withKeepJobFlowAliveWhenNoSteps(true)
                         .withMasterInstanceType(masterInstanceType)
                         .withSlaveInstanceType(slaveInstanceType));
+        logger.info("Creating EMR cluster: {}", runJobFlowRequest);
         RunJobFlowResult runJobFlowResult = emr.runJobFlow(runJobFlowRequest);
+        String fqid = new EmrClusterFqid(region, runJobFlowResult.getJobFlowId()).toString();
+        logger.info("Created EMR cluster {}: {}", fqid, runJobFlowResult);
         CreateClusterResponse response = new CreateClusterResponse();
-        response.setClusterFqid(String.format("%s-%s", region, runJobFlowResult.getJobFlowId()));
+        response.setClusterFqid(fqid);
         return response;
     }
 
@@ -124,7 +127,9 @@ public class EmrClusterController {
         AmazonElasticMapReduce emr = EmrHelper.getEmr(clusterFqid.getRegion());
         TerminateJobFlowsRequest terminateJobFlowsRequest = new TerminateJobFlowsRequest();
         terminateJobFlowsRequest.setJobFlowIds(Arrays.asList(clusterFqid.getClusterId()));
-        emr.terminateJobFlows(terminateJobFlowsRequest);
+        logger.info("Terminating EMR cluster {}: {}", clusterFqidStr, terminateJobFlowsRequest);
+        TerminateJobFlowsResult terminateJobFlowsResult = emr.terminateJobFlows(terminateJobFlowsRequest);
+        logger.info("Terminated EMR cluster {}: {}", clusterFqidStr, terminateJobFlowsResult);
         DeleteClusterResponse response = new DeleteClusterResponse();
         response.setClusterFqid(clusterFqidStr);
         return response;

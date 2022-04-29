@@ -5,6 +5,8 @@ import org.datapunch.starfish.api.emr.CreateClusterResponse;
 import org.datapunch.starfish.api.emr.DeleteClusterResponse;
 import org.datapunch.starfish.api.emr.GetClusterResponse;
 import org.datapunch.starfish.awslib.Ec2Helper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

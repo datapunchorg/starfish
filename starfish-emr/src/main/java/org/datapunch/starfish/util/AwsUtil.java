@@ -3,7 +3,7 @@ package org.datapunch.starfish.util;
 import com.amazonaws.regions.Regions;
 
 public class AwsUtil {
-    public static String getRegionFromPrefix(String str) {
+    public static String tryGetRegionFromPrefix(String str) {
         if (StringUtil.isNullOrEmpty(str)) {
             throw new IllegalArgumentException("str is empty");
         }
@@ -13,6 +13,6 @@ public class AwsUtil {
                 return region.getName();
             }
         }
-        throw new IllegalArgumentException(String.format("str is not valid region: %s", str));
+        return null;
     }
 }

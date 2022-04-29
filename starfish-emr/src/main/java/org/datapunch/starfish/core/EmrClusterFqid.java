@@ -9,12 +9,17 @@ public class EmrClusterFqid {
     private String clusterId;
 
     public EmrClusterFqid(String id) {
-        this.region = AwsUtil.getRegionFromPrefix(id);
-        id = id.substring(region.length());
-        if (id.startsWith("-")) {
-            id = id.substring(1);
+        String regionProbe = AwsUtil.tryGetRegionFromPrefix(id);
+        if (regionProbe != null) {
+            String remaining = id.substring(regionProbe.length());
+            if (remaining.startsWith("-") || remaining.startsWith("_") || remaining.startsWith(".")) {
+                remaining = remaining.substring(1);
+            }
+            this.region = regionProbe;
+            this.clusterId = remaining;
+        } else {
+            throw new IllegalArgumentException(String.format("Could not get region and cluster id from %s", id));
         }
-        this.clusterId = id;
     }
 
     public EmrClusterFqid(String region, String clusterId) {
@@ -46,6 +51,6 @@ public class EmrClusterFqid {
 
     @Override
     public String toString() {
-        return String.format("%s-%s", region, clusterId);
+        return String.format("%s.%s", region, clusterId);
     }
 }
