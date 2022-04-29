@@ -52,13 +52,13 @@ Request Examples: Spark
 ## Submit Spark application
 
 ```
-export response=$(curl -X POST localhost:8080/starfish/v1/emr/clusters/$clusterFqid/spark -H 'Content-Type: application/json' -d '{"mainClass": "org.apache.spark.examples.SparkPi", "mainApplicationFile": "s3a://datapunch-public-01/jars/spark-examples_2.12-3.1.2.jar"}')
+export response=$(curl -X POST localhost:8080/starfish/v1/emr/clusters/$clusterFqid/submissions -H 'Content-Type: application/json' -d '{"mainClass": "org.apache.spark.examples.SparkPi", "mainApplicationFile": "s3a://datapunch-public-01/jars/spark-examples_2.12-3.1.2.jar"}')
 echo $response
 
 export submissionId=$(echo $response | jq -r '.submissionId')
 echo submissionId: $submissionId
 
-curl localhost:8080/starfish/v1/emr/clusters/$clusterFqid/spark/$submissionId
+curl localhost:8080/starfish/v1/emr/clusters/$clusterFqid/submissions/$submissionId
 ```
 
 Code Example to Create Cluster and Submit Spark Application Without Using REST

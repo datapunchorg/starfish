@@ -1,8 +1,6 @@
 package org.datapunch.starfish.core;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduce;
-import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClientBuilder;
 import com.amazonaws.services.elasticmapreduce.model.*;
 import org.datapunch.starfish.api.emr.*;
 import org.datapunch.starfish.api.spark.SparkApplicationState;
@@ -19,10 +17,10 @@ public class EmrSparkController {
 
     private static final Set<String> finishedStatesLowerCase = new HashSet<>(Arrays.asList("completed", "failed"));
 
-    private final EmrSparkConfiguration config;
+    private final EmrApplicationSubmissionConfiguration config;
 
-    public EmrSparkController(EmrSparkConfiguration config) {
-        this.config = config == null ? new EmrSparkConfiguration() : config;
+    public EmrSparkController(EmrApplicationSubmissionConfiguration config) {
+        this.config = config == null ? new EmrApplicationSubmissionConfiguration() : config;
     }
 
     public SubmitSparkApplicationResponse submitSparkApplication(String clusterFqidStr, SubmitSparkApplicationRequest request) {

@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -67,7 +66,7 @@ public class EmrSparkControllerIT {
 
     @Test
     public void testSparkController() {
-        EmrSparkConfiguration sparkConfiguration = new EmrSparkConfiguration();
+        EmrApplicationSubmissionConfiguration sparkConfiguration = new EmrApplicationSubmissionConfiguration();
         EmrSparkController sparkController = new EmrSparkController(sparkConfiguration);
 
         {

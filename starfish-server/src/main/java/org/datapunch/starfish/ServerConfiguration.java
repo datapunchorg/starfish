@@ -2,10 +2,7 @@ package org.datapunch.starfish;
 
 import org.datapunch.starfish.core.EmrClusterConfiguration;
 import io.dropwizard.Configuration;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.datapunch.starfish.core.EmrSparkConfiguration;
-
-import javax.validation.constraints.NotEmpty;
+import org.datapunch.starfish.core.EmrApplicationSubmissionConfiguration;
 
 public class ServerConfiguration extends Configuration {
 
@@ -14,7 +11,7 @@ public class ServerConfiguration extends Configuration {
     private String dbPassword;
 
     private EmrClusterConfiguration emrClusterConfiguration;
-    private EmrSparkConfiguration sparkConfiguration;
+    private EmrApplicationSubmissionConfiguration sparkConfiguration;
 
     public String getDbConnectionString() {
         return dbConnectionString;
@@ -48,11 +45,11 @@ public class ServerConfiguration extends Configuration {
         this.emrClusterConfiguration = emrClusterConfiguration;
     }
 
-    public EmrSparkConfiguration getSparkConfiguration() {
+    public EmrApplicationSubmissionConfiguration getSparkConfiguration() {
         return sparkConfiguration;
     }
 
-    public void setSparkConfiguration(EmrSparkConfiguration sparkConfiguration) {
+    public void setSparkConfiguration(EmrApplicationSubmissionConfiguration sparkConfiguration) {
         this.sparkConfiguration = sparkConfiguration;
     }
 }
