@@ -97,6 +97,14 @@ public abstract class BaseJdbcDao implements AutoCloseable {
     }
 
     public void createTable(boolean usePartition) {
+        if (isPostgreSQL()) {
+            createTable_PostgresSQL(usePartition);
+        } else {
+            createTable_MySQL(usePartition);
+        }
+    }
+
+    public void createTable_MySQL(boolean usePartition) {
         String paritionKey = usePartition ? partitionKey : null;
         String sql =
                 JdbcUtils.getCreateTableSql(
@@ -130,8 +138,54 @@ public abstract class BaseJdbcDao implements AutoCloseable {
         }
     }
 
+    public void createTable_PostgresSQL(boolean usePartition) {
+        // PostgresSQL does not support embedding creating index in creating table statement
+        Collection<String> emptyIndexColumns = new ArrayList<>();
+        String paritionKey = usePartition ? partitionKey : null;
+        String createTableSql =
+                JdbcUtils.getCreateTableSql(
+                        entityClass,
+                        getTableName(),
+                        paritionKey,
+                        primaryKeys,
+                        emptyIndexColumns,
+                        timestampColumns,
+                        textColumns);
+        if (getJdbcConnectionString().toLowerCase().startsWith("jdbc:h2:")) {
+            createTableSql =
+                    JdbcUtils.getCreateTableSql(
+                            entityClass,
+                            getTableName(),
+                            null,
+                            primaryKeys,
+                            emptyIndexColumns,
+                            timestampColumns,
+                            textColumns,
+                            getTableName() + "_");
+        }
+        List<String> createIndexSqls = JdbcUtils.getCreateIndexSqls(getTableName(), indexColumns);
+        List<String> allSqls = new ArrayList<>();
+        allSqls.add(createTableSql);
+        allSqls.addAll(createIndexSqls);
+        try (Connection con = getConnection()) {
+            for (String sql: allSqls) {
+                logger.info("Running sql: " + sql);
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.executeUpdate();
+                logger.info("Finished sql: " + sql);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    String.format("Failed to create table: %s", this.getTableName()), e);
+        }
+    }
+
     protected void insertOrUpdate(Object object) {
-        singleTableJdbcWriter.write(object);
+        String dbType = null;
+        if (isPostgreSQL()) {
+            dbType = "PostgreSQL";
+        }
+        singleTableJdbcWriter.write(object, dbType, indexColumns);
     }
 
     public List<List<Object>> queryColumns(int maxResultCount, String... columns) {
@@ -508,6 +562,15 @@ public abstract class BaseJdbcDao implements AutoCloseable {
                             "Failed to write jdbc value %s to bean %s on property %s",
                             date, bean, descriptor.getName()),
                     e);
+        }
+    }
+
+    private boolean isPostgreSQL() {
+        String str = connectionProvider.getConnectionString().toLowerCase();
+        if (str.startsWith("postgre") || str.contains("MODE=PostgreSQL".toLowerCase())) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

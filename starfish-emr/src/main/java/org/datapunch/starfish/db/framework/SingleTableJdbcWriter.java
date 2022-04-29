@@ -120,7 +120,7 @@ public class SingleTableJdbcWriter implements AutoCloseable {
         return connectionProvider.getConnectionString();
     }
 
-    public void write(Object object) {
+    public void write(Object object, String dbType, Collection<String> indexColumns) {
         if (object == null) {
             logger.warn("Ignored null object");
             return;
@@ -175,6 +175,21 @@ public class SingleTableJdbcWriter implements AutoCloseable {
                         StringUtils.join(nonNullFields, ", "),
                         StringUtils.join(Collections.nCopies(nonNullFields.size(), "?"), ", "),
                         StringUtils.join(updateList, ", "));
+        if (dbType != null && dbType.equalsIgnoreCase("postgresql")) {
+            updateList = new ArrayList<>();
+            for (int i = 0; i < nonNullFields.size(); i++) {
+                String field = nonNullFields.get(i);
+                updateList.add(String.format("%s=excluded.%s", field, field));
+            }
+            sql =
+                    String.format(
+                            "INSERT INTO %s (%s) VALUES (%s) ON CONFLICT (%s) DO UPDATE SET %s",
+                            tableName,
+                            StringUtils.join(nonNullFields, ", "),
+                            StringUtils.join(Collections.nCopies(nonNullFields.size(), "?"), ", "),
+                            StringUtils.join(indexColumns, ", "),
+                            StringUtils.join(updateList, ", "));
+        }
         logger.info("Running sql: " + sql);
         Connection connection = connectionProvider.getConnection();
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {

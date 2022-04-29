@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class JdbcUtils {
     public static String getCreateTableSql(
@@ -193,6 +194,15 @@ public class JdbcUtils {
         } catch (IntrospectionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<String> getCreateIndexSqls(String tableName, Collection<String> columns) {
+        return columns.stream().map(t -> getCreateIndexSql(tableName, t)).collect(Collectors.toList());
+    }
+
+    public static String getCreateIndexSql(String tableName, String column) {
+        String sql = String.format("CREATE INDEX idx_%s ON %s(%s)", column, tableName, column);
+        return sql;
     }
 
     public static String getCreateSingleColumnTableSql(
