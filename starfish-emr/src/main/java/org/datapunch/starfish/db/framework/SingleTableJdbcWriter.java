@@ -69,21 +69,6 @@ public class SingleTableJdbcWriter implements AutoCloseable {
     private Map<String, String> columnTypes = new HashMap<>();
 
     public SingleTableJdbcWriter(
-            String jdbcDriverClass,
-            String jdbcConnectionString,
-            String tableName,
-            Collection<String> ignoreColumns,
-            Collection<String> timestampColumns,
-            Collection<String> textColumns) {
-        this(
-                new DbConnectionProvider(jdbcDriverClass, jdbcConnectionString),
-                tableName,
-                ignoreColumns,
-                timestampColumns,
-                textColumns);
-    }
-
-    public SingleTableJdbcWriter(
             DbConnectionProvider DbConnectionProvider,
             String tableName,
             Collection<String> ignoreColumns,
@@ -120,7 +105,7 @@ public class SingleTableJdbcWriter implements AutoCloseable {
         return connectionProvider.getConnectionString();
     }
 
-    public void write(Object object, String dbType, Collection<String> indexColumns) {
+    public void write(Object object, Collection<String> indexColumns, JdbcUtils.DBTYPE dbtype) {
         if (object == null) {
             logger.warn("Ignored null object");
             return;
@@ -175,7 +160,7 @@ public class SingleTableJdbcWriter implements AutoCloseable {
                         StringUtils.join(nonNullFields, ", "),
                         StringUtils.join(Collections.nCopies(nonNullFields.size(), "?"), ", "),
                         StringUtils.join(updateList, ", "));
-        boolean postgresqlMode = dbType != null && dbType.equalsIgnoreCase("postgresql");
+        boolean postgresqlMode = dbtype == JdbcUtils.DBTYPE.POSTGRESQL;
         if (postgresqlMode) {
             updateList = new ArrayList<>();
             for (int i = 0; i < nonNullFields.size(); i++) {
@@ -198,9 +183,13 @@ public class SingleTableJdbcWriter implements AutoCloseable {
                 if (timestampColumnsLowerCase.contains(nonNullFields.get(i).toLowerCase())) {
                     stmt.setTimestamp(i + 1, JdbcUtils.getSqlTimestamp(nonNullValues.get(i)));
                 } else if (textColumnsLowerCase.contains(nonNullFields.get(i).toLowerCase())) {
-                    Clob clob = connection.createClob();
-                    clob.setString(1, nonNullValues.get(i).toString());
-                    stmt.setClob(i + 1, clob);
+                    if (postgresqlMode) {
+                        stmt.setString(i + 1, nonNullValues.get(i).toString());
+                    } else {
+                        Clob clob = connection.createClob();
+                        clob.setString(1, nonNullValues.get(i).toString());
+                        stmt.setClob(i + 1, clob);
+                    }
                 } else {
                     stmt.setObject(i + 1, nonNullValues.get(i));
                 }

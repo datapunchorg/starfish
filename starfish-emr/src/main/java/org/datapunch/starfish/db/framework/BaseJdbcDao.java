@@ -70,7 +70,28 @@ public abstract class BaseJdbcDao implements AutoCloseable {
             Collection<String> indexColumns,
             Collection<String> timestampColumns,
             Collection<String> textColumns) {
-        connectionProvider = new DbConnectionProvider(jdbcDriverClass, connectionString);
+        this(jdbcDriverClass,
+                new ConnectionInfo(connectionString, null, null),
+                entityClass,
+                tableName,
+                partitionKey,
+                primaryKeys,
+                indexColumns,
+                timestampColumns,
+                textColumns);
+    }
+
+    public BaseJdbcDao(
+            String jdbcDriverClass,
+            ConnectionInfo connectionInfo,
+            Class<?> entityClass,
+            String tableName,
+            String partitionKey,
+            Collection<String> primaryKeys,
+            Collection<String> indexColumns,
+            Collection<String> timestampColumns,
+            Collection<String> textColumns) {
+        connectionProvider = new DbConnectionProvider(jdbcDriverClass, connectionInfo.getConnectionString(), connectionInfo.getUser(), connectionInfo.getPassword());
         this.entityClass = entityClass;
         this.tableName = tableName;
         this.partitionKey = partitionKey;
@@ -114,7 +135,8 @@ public abstract class BaseJdbcDao implements AutoCloseable {
                         primaryKeys,
                         indexColumns,
                         timestampColumns,
-                        textColumns);
+                        textColumns,
+                        getDbType());
         if (getJdbcConnectionString().toLowerCase().startsWith("jdbc:h2:")) {
             sql =
                     JdbcUtils.getCreateTableSql(
@@ -125,7 +147,8 @@ public abstract class BaseJdbcDao implements AutoCloseable {
                             indexColumns,
                             timestampColumns,
                             textColumns,
-                            getTableName() + "_");
+                            getTableName() + "_",
+                            getDbType());
         }
         try (Connection con = getConnection()) {
             logger.info("Running sql: " + sql);
@@ -139,18 +162,26 @@ public abstract class BaseJdbcDao implements AutoCloseable {
     }
 
     public void createTable_PostgresSQL(boolean usePartition) {
+        if (usePartition) {
+            // PostgresSQL has to manually create each table partition: https://www.postgresql.org/docs/current/ddl-partitioning.html
+            // The code here does not support partitioning in PostgresSQL, thus throw exception.
+            // We could add support in the future.
+            throw new RuntimeException(String.format("The database framework does not support partitioning for PostgresSQL"));
+        }
+
         // PostgresSQL does not support embedding creating index in creating table statement
         Collection<String> emptyIndexColumns = new ArrayList<>();
-        String paritionKey = usePartition ? partitionKey : null;
+        String partitionKeyToUse = usePartition ? partitionKey : null;
         String createTableSql =
                 JdbcUtils.getCreateTableSql(
                         entityClass,
                         getTableName(),
-                        paritionKey,
+                        partitionKeyToUse,
                         primaryKeys,
                         emptyIndexColumns,
                         timestampColumns,
-                        textColumns);
+                        textColumns,
+                        getDbType());
         if (getJdbcConnectionString().toLowerCase().startsWith("jdbc:h2:")) {
             createTableSql =
                     JdbcUtils.getCreateTableSql(
@@ -161,7 +192,8 @@ public abstract class BaseJdbcDao implements AutoCloseable {
                             emptyIndexColumns,
                             timestampColumns,
                             textColumns,
-                            getTableName() + "_");
+                            getTableName() + "_",
+                            getDbType());
         }
         List<String> createIndexSqls = JdbcUtils.getCreateIndexSqls(getTableName(), indexColumns);
         List<String> allSqls = new ArrayList<>();
@@ -181,11 +213,7 @@ public abstract class BaseJdbcDao implements AutoCloseable {
     }
 
     protected void insertOrUpdate(Object object) {
-        String dbType = null;
-        if (isPostgreSQL()) {
-            dbType = "PostgreSQL";
-        }
-        singleTableJdbcWriter.write(object, dbType, indexColumns);
+        singleTableJdbcWriter.write(object, indexColumns, getDbType());
     }
 
     public List<List<Object>> queryColumns(int maxResultCount, String... columns) {
@@ -565,12 +593,16 @@ public abstract class BaseJdbcDao implements AutoCloseable {
         }
     }
 
-    private boolean isPostgreSQL() {
+    private JdbcUtils.DBTYPE getDbType() {
         String str = connectionProvider.getConnectionString().toLowerCase();
         if (str.startsWith("jdbc:postgre") || str.startsWith("postgre") || str.contains("MODE=PostgreSQL".toLowerCase())) {
-            return true;
+            return JdbcUtils.DBTYPE.POSTGRESQL;
         } else {
-            return false;
+            return JdbcUtils.DBTYPE.OTHER;
         }
+    }
+
+    private boolean isPostgreSQL() {
+        return getDbType() == JdbcUtils.DBTYPE.POSTGRESQL;
     }
 }

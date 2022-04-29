@@ -18,6 +18,7 @@
 
 package org.datapunch.starfish.db.framework;
 
+import org.datapunch.starfish.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +33,23 @@ public class DbConnectionProvider {
 
     private final String jdbcDriverClass;
     private final String connectionString;
+    private final String user;
+    private final String password;
 
     private volatile static Connection connection;
 
     public DbConnectionProvider(String jdbcDriverClass, String connectionString) {
         this.jdbcDriverClass = jdbcDriverClass;
         this.connectionString = connectionString;
+        this.user = null;
+        this.password = null;
+    }
+
+    public DbConnectionProvider(String jdbcDriverClass, String connectionString, String user, String password) {
+        this.jdbcDriverClass = jdbcDriverClass;
+        this.connectionString = connectionString;
+        this.user = user;
+        this.password = password;
     }
 
     public String getConnectionString() {
@@ -62,7 +74,11 @@ public class DbConnectionProvider {
                     throw new RuntimeException("Failed to find JDBC class " + jdbcDriverClass, e);
                 }
             }
-            connection = DriverManager.getConnection(connectionString);
+            if (StringUtil.isNullOrEmpty(user)) {
+                connection = DriverManager.getConnection(connectionString);
+            } else {
+                connection = DriverManager.getConnection(connectionString, user, password);
+            }
             return connection;
         } catch (SQLException e) {
             throw new RuntimeException("Failed to create JDBC connection: " + connectionString, e);

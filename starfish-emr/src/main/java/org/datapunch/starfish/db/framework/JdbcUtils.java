@@ -30,34 +30,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class JdbcUtils {
-    public static String getCreateTableSql(
-            Class<?> clazz,
-            String tableName,
-            Collection<String> primaryKeys,
-            Collection<String> indexFields,
-            Collection<String> timestampFields,
-            Collection<String> textFields) {
-        return getCreateTableSql(
-                clazz, tableName, null, primaryKeys, indexFields, timestampFields, textFields);
-    }
+    public enum DBTYPE {POSTGRESQL, OTHER}
 
     public static String getCreateTableSql(
             Class<?> clazz,
             String tableName,
-            String partitionKey,
             Collection<String> primaryKeys,
             Collection<String> indexFields,
             Collection<String> timestampFields,
-            Collection<String> textFields) {
+            Collection<String> textFields,
+            DBTYPE dbtype) {
         return getCreateTableSql(
-                clazz,
-                tableName,
-                partitionKey,
-                primaryKeys,
-                indexFields,
-                timestampFields,
-                textFields,
-                null);
+                clazz, tableName, null, primaryKeys, indexFields, timestampFields, textFields, dbtype);
     }
 
     public static String getCreateTableSql(
@@ -68,7 +52,29 @@ public class JdbcUtils {
             Collection<String> indexFields,
             Collection<String> timestampFields,
             Collection<String> textFields,
-            String indexNamePrefix) {
+            DBTYPE dbtype) {
+        return getCreateTableSql(
+                clazz,
+                tableName,
+                partitionKey,
+                primaryKeys,
+                indexFields,
+                timestampFields,
+                textFields,
+                null,
+                dbtype);
+    }
+
+    public static String getCreateTableSql(
+            Class<?> clazz,
+            String tableName,
+            String partitionKey,
+            Collection<String> primaryKeys,
+            Collection<String> indexFields,
+            Collection<String> timestampFields,
+            Collection<String> textFields,
+            String indexNamePrefix,
+            DBTYPE dbtype) {
         if (textFields == null) {
             textFields = new ArrayList<>();
         }
@@ -151,7 +157,8 @@ public class JdbcUtils {
                             primaryKeys.contains(allPropertyDescriptors.get(0).getName())
                                     || indexFields.contains(allPropertyDescriptors.get(0).getName()),
                             timestampFields.contains(allPropertyDescriptors.get(0).getName()),
-                            textFields.contains(allPropertyDescriptors.get(0).getName())));
+                            textFields.contains(allPropertyDescriptors.get(0).getName()),
+                            dbtype));
 
             for (int i = 1; i < allPropertyDescriptors.size(); i++) {
                 sb.append(", ");
@@ -163,7 +170,8 @@ public class JdbcUtils {
                                 primaryKeys.contains(allPropertyDescriptors.get(i).getName())
                                         || indexFields.contains(allPropertyDescriptors.get(i).getName()),
                                 timestampFields.contains(allPropertyDescriptors.get(i).getName()),
-                                textFields.contains(allPropertyDescriptors.get(i).getName())));
+                                textFields.contains(allPropertyDescriptors.get(i).getName()),
+                                dbtype));
             }
 
             if (!primaryKeyPropertyDescriptors.isEmpty()) {
@@ -201,7 +209,7 @@ public class JdbcUtils {
     }
 
     public static String getCreateIndexSql(String tableName, String column) {
-        String sql = String.format("CREATE INDEX IF NOT EXISTS idx_%s ON %s(%s)", column, tableName, column);
+        String sql = String.format("CREATE INDEX IF NOT EXISTS idx_%s_%s ON %s(%s)", tableName, column, tableName, column);
         return sql;
     }
 
@@ -222,11 +230,19 @@ public class JdbcUtils {
             PropertyDescriptor beanProperty,
             boolean isPrimaryKeyOrUniqueKey,
             boolean isDatetime,
-            boolean isText) {
+            boolean isText,
+            DBTYPE dbtype) {
         int maxVarcharLength = isPrimaryKeyOrUniqueKey ? 150 : 250;
         String sqlTypeForString = isText ? "TEXT" : String.format("VARCHAR(%s)", maxVarcharLength);
+        if (isText && dbtype == DBTYPE.POSTGRESQL) {
+            sqlTypeForString = "VARCHAR(1024000)";
+        }
         if (isDatetime || beanProperty.getPropertyType().equals(Date.class)) {
-            return "DATETIME";
+            if (dbtype == DBTYPE.POSTGRESQL) {
+                return "TIMESTAMP";
+            } else {
+                return "DATETIME";
+            }
         } else if (beanProperty.getPropertyType().equals(String.class)) {
             return sqlTypeForString;
         } else if (beanProperty.getPropertyType().equals(Integer.class)) {

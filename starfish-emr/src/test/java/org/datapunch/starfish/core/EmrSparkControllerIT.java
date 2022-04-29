@@ -37,7 +37,7 @@ public class EmrSparkControllerIT {
 
         CreateClusterRequest createClusterRequest = new CreateClusterRequest();
         createClusterRequest.setClusterName(String.format("IntegrationTest-%s", EmrClusterControllerIT.class.getSimpleName()));
-        String logUri = System.getenv("ENV_EMR_LOG_URI");
+        String logUri = System.getenv("INTEGRATION_TEST_EMR_LOG_URI");
         if (!StringUtil.isNullOrEmpty(logUri)) {
             createClusterRequest.setLogUri(logUri);
         }

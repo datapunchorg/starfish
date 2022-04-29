@@ -1,6 +1,7 @@
 package org.datapunch.starfish.db;
 
 import org.datapunch.starfish.db.framework.BaseJdbcDao;
+import org.datapunch.starfish.db.framework.ConnectionInfo;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,6 +23,19 @@ public class QueueDao extends BaseJdbcDao {
         super(
                 jdbcDriverClass,
                 connectionString,
+                QueueEntity.class,
+                tableName,
+                PARTITION_KEY,
+                Arrays.asList(PRIMARY_KEYS),
+                Arrays.asList(INDEX_COLUMNS),
+                Arrays.asList(DATETIME_COLUMNS),
+                Arrays.asList(TEXT_COLUMNS));
+    }
+
+    public QueueDao(String jdbcDriverClass, ConnectionInfo connectionInfo, String tableName) {
+        super(
+                jdbcDriverClass,
+                connectionInfo,
                 QueueEntity.class,
                 tableName,
                 PARTITION_KEY,
