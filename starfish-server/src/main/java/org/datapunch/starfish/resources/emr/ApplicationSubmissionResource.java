@@ -1,9 +1,7 @@
 package org.datapunch.starfish.resources.emr;
 
 import com.codahale.metrics.annotation.Timed;
-import org.datapunch.starfish.api.spark.GetApplicationSubmissionResponse;
-import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
-import org.datapunch.starfish.api.spark.SubmitSparkApplicationResponse;
+import org.datapunch.starfish.api.spark.*;
 import org.datapunch.starfish.core.EmrApplicationSubmissionConfiguration;
 import org.datapunch.starfish.core.EmrSparkController;
 
@@ -36,5 +34,24 @@ public class ApplicationSubmissionResource {
     @Path("{clusterId}/submissions/{submissionId}")
     public GetApplicationSubmissionResponse getSparkApplication(@PathParam("clusterId") String clusterId, @PathParam("submissionId") String submissionId) {
         return controller.getSparkApplication(clusterId, submissionId);
+    }
+
+    @GET
+    @Timed
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{clusterId}/submissions/{submissionId}/status")
+    public GetApplicationSubmissionStatusResponse getSparkApplicationStatus(@PathParam("clusterId") String clusterId, @PathParam("submissionId") String submissionId) {
+        ApplicationSubmissionStatus status = controller.getSparkApplication(clusterId, submissionId).getStatus();
+        if (status == null) {
+            throw new WebApplicationException(
+                    String.format("Failed to get submission status for %s (cluster: %s)", submissionId, clusterId)
+            );
+        }
+        GetApplicationSubmissionStatusResponse response = new GetApplicationSubmissionStatusResponse();
+        response.setSubmissionId(status.getSubmissionId());
+        response.setState(status.getState());
+        response.setApplicationMessage(status.getApplicationMessage());
+        return response;
     }
 }
