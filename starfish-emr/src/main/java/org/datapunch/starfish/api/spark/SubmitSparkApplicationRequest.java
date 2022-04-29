@@ -2,11 +2,13 @@ package org.datapunch.starfish.api.spark;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
 import java.util.Map;
 
 public class SubmitSparkApplicationRequest {
     private String mainClass;
     private String mainApplicationFile;
+    private List<String> arguments;
 
     private DriverSpec driver;
     private ExecutorSpec executor;
@@ -27,6 +29,14 @@ public class SubmitSparkApplicationRequest {
 
     public void setMainApplicationFile(String mainApplicationFile) {
         this.mainApplicationFile = mainApplicationFile;
+    }
+
+    public List<String> getArguments() {
+        return arguments;
+    }
+
+    public void setArguments(List<String> arguments) {
+        this.arguments = arguments;
     }
 
     public DriverSpec getDriver() {

@@ -25,8 +25,10 @@ public class EmrSparkController {
         HadoopJarStepConfig sparkStepConf = new HadoopJarStepConfig()
                         .withJar("command-runner.jar")
                         .withArgs("spark-submit")
-                        .withArgs("--master", "yarn")
-                        .withArgs("--class", request.getMainClass());
+                        .withArgs("--master", "yarn");
+        if (!StringUtil.isNullOrEmpty(request.getMainClass())) {
+            sparkStepConf = sparkStepConf.withArgs("--class", request.getMainClass());
+        }
         Map<String, String> sparkConf = new HashMap<>();
         if (request.getDriver() != null) {
             if (request.getDriver().getCores() > 0) {
@@ -55,7 +57,12 @@ public class EmrSparkController {
                 sparkStepConf = sparkStepConf.withArgs("--conf", String.format("%s=%s", entry.getKey(), entry.getValue()));
             }
         }
+
         sparkStepConf = sparkStepConf.withArgs(request.getMainApplicationFile());
+        if (request.getArguments() != null && !request.getArguments().isEmpty()) {
+            sparkStepConf.withArgs(request.getArguments());
+        }
+
         StepConfig sparkStep = new StepConfig()
                 .withName("Spark Step")
                 .withActionOnFailure(ActionOnFailure.CONTINUE)
@@ -72,7 +79,6 @@ public class EmrSparkController {
                     clusterFqid, stepIds.size()));
         }
         SubmitSparkApplicationResponse response = new SubmitSparkApplicationResponse();
-        response.setClusterFqid(clusterFqid.toString());
         response.setSubmissionId(stepIds.get(0));
         return response;
     }
@@ -90,6 +96,7 @@ public class EmrSparkController {
             errorMessage = describeStepResult.getStep().getStatus().getFailureDetails().toString();
         }
         ApplicationSubmissionStatus applicationSubmissionStatus = new ApplicationSubmissionStatus();
+        applicationSubmissionStatus.setSubmissionId(submissionId);
         applicationSubmissionStatus.setState(state);
         applicationSubmissionStatus.setApplicationMessage(errorMessage);
         GetApplicationSubmissionResponse response = new GetApplicationSubmissionResponse();

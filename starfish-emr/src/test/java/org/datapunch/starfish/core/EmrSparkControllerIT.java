@@ -72,12 +72,13 @@ public class EmrSparkControllerIT {
             submitSparkApplicationRequest.setMainClass("org.apache.spark.examples.SparkPi");
             submitSparkApplicationRequest.setMainApplicationFile("s3a://datapunch-public-01/jars/spark-examples_2.12-3.1.2.jar");
             SubmitSparkApplicationResponse submitSparkApplicationResponse = sparkController.submitSparkApplication(clusterFqid, submitSparkApplicationRequest);
-            logger.info("Submitted Spark application to cluster {}, got submission id: {}", submitSparkApplicationResponse.getClusterFqid(), submitSparkApplicationResponse.getSubmissionId());
-            Assert.assertNotNull(submitSparkApplicationResponse.getClusterFqid());
+            logger.info("Submitted Spark application to cluster {}, got submission id: {}", clusterFqid, submitSparkApplicationResponse.getSubmissionId());
             Assert.assertNotNull(submitSparkApplicationResponse.getSubmissionId());
 
             GetApplicationSubmissionResponse getApplicationSubmissionResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
             Assert.assertNotNull(getApplicationSubmissionResponse.getStatus());
+            Assert.assertNotNull(getApplicationSubmissionResponse.getStatus().getSubmissionId());
+            Assert.assertNotNull(getApplicationSubmissionResponse.getStatus().getState());
 
             sparkController.waitSparkApplicationFinished(clusterFqid, submitSparkApplicationResponse.getSubmissionId(), 10*60*1000, 10000);
 
@@ -98,12 +99,13 @@ public class EmrSparkControllerIT {
             submitSparkApplicationRequest.setSparkConf(new HashMap<>());
             submitSparkApplicationRequest.getSparkConf().put("spark.conf.example1", "value1");
             SubmitSparkApplicationResponse submitSparkApplicationResponse = sparkController.submitSparkApplication(clusterFqid, submitSparkApplicationRequest);
-            logger.info("Submitted Spark application to cluster {}, got submission id: {}", submitSparkApplicationResponse.getClusterFqid(), submitSparkApplicationResponse.getSubmissionId());
-            Assert.assertNotNull(submitSparkApplicationResponse.getClusterFqid());
+            logger.info("Submitted Spark application to cluster {}, got submission id: {}", clusterFqid, submitSparkApplicationResponse.getSubmissionId());
             Assert.assertNotNull(submitSparkApplicationResponse.getSubmissionId());
 
             GetApplicationSubmissionResponse getApplicationSubmissionResponse = sparkController.getSparkApplication(clusterFqid, submitSparkApplicationResponse.getSubmissionId());
             Assert.assertNotNull(getApplicationSubmissionResponse.getStatus());
+            Assert.assertNotNull(getApplicationSubmissionResponse.getStatus().getSubmissionId());
+            Assert.assertNotNull(getApplicationSubmissionResponse.getStatus().getState());
 
             sparkController.waitSparkApplicationFinished(clusterFqid, submitSparkApplicationResponse.getSubmissionId(), 10*60*1000, 10000);
 
