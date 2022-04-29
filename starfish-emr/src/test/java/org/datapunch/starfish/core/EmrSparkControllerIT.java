@@ -5,6 +5,7 @@ import org.datapunch.starfish.api.spark.DriverSpec;
 import org.datapunch.starfish.api.spark.ExecutorSpec;
 import org.datapunch.starfish.api.spark.SubmitSparkApplicationRequest;
 import org.datapunch.starfish.awslib.Ec2Helper;
+import org.datapunch.starfish.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -20,6 +21,8 @@ import java.util.Set;
 
 public class EmrSparkControllerIT {
     private static final Logger logger = LoggerFactory.getLogger(EmrSparkControllerIT.class);
+
+    private static final String ENV_EMR_LOG_URI = "EMR_LOG_URI";
 
     private EmrClusterConfiguration clusterConfiguration;
 
@@ -37,7 +40,10 @@ public class EmrSparkControllerIT {
 
         CreateClusterRequest createClusterRequest = new CreateClusterRequest();
         createClusterRequest.setClusterName(String.format("IntegrationTest-%s", EmrClusterControllerIT.class.getSimpleName()));
-        createClusterRequest.setLogUri("s3://datapunch-public-writeable-us-west-1/upload"); // TODO modify this
+        String logUri = System.getenv("ENV_EMR_LOG_URI");
+        if (!StringUtil.isNullOrEmpty(logUri)) {
+            createClusterRequest.setLogUri(logUri);
+        }
         CreateClusterResponse createClusterResponse = clusterController.createCluster(createClusterRequest);
 
         clusterController.waitClusterReadyOrTerminated(createClusterResponse.getClusterFqid(), 30*60*1000, 10000);
