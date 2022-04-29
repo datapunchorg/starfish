@@ -1,6 +1,6 @@
 package org.datapunch.starfish.db;
 
-public class SparkApplicationSubmissionDbEntity {
+public class SparkApplicationSubmissionEntity {
     private Long createTime;
     private String environment = "default";
     private String cluster;

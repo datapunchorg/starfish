@@ -20,7 +20,7 @@ public class SparkApplicationSubmissionDaoTest {
         dao.createTable();
         dao.queryColumns(1000, "*");
 
-        SparkApplicationSubmissionDbEntity entity1 = new SparkApplicationSubmissionDbEntity();
+        SparkApplicationSubmissionEntity entity1 = new SparkApplicationSubmissionEntity();
         entity1.setCreateTime(System.currentTimeMillis());
         entity1.setCluster("cluster01");
         entity1.setSubmissionId("submission01");
@@ -28,7 +28,7 @@ public class SparkApplicationSubmissionDaoTest {
 
         dao.insertOrUpdate(entity1);
 
-        SparkApplicationSubmissionDbEntity entity2 = new SparkApplicationSubmissionDbEntity();
+        SparkApplicationSubmissionEntity entity2 = new SparkApplicationSubmissionEntity();
         entity2.setCreateTime(System.currentTimeMillis());
         entity2.setCluster("cluster02");
         entity2.setSubmissionId("submission02");
@@ -38,13 +38,13 @@ public class SparkApplicationSubmissionDaoTest {
 
         Assert.assertEquals(2, dao.getTotalCount());
 
-        SparkApplicationSubmissionDbEntity readback1 = dao.getByPrimaryKeys(
+        SparkApplicationSubmissionEntity readback1 = dao.getByPrimaryKeys(
                 Arrays.asList(
                         entity1.getCreateTime(),
                         entity1.getEnvironment(),
                         entity1.getCluster(),
                         entity1.getSubmissionId()),
-                SparkApplicationSubmissionDbEntity.class);
+                SparkApplicationSubmissionEntity.class);
 
         Assert.assertEquals(entity1.getCreateTime(), readback1.getCreateTime());
         Assert.assertEquals(entity1.getEnvironment(), readback1.getEnvironment());
@@ -52,13 +52,13 @@ public class SparkApplicationSubmissionDaoTest {
         Assert.assertEquals(entity1.getSubmissionId(), readback1.getSubmissionId());
         Assert.assertEquals(entity1.getSubmissionRequest(), readback1.getSubmissionRequest());
 
-        SparkApplicationSubmissionDbEntity readback2 = dao.getByPrimaryKeys(
+        SparkApplicationSubmissionEntity readback2 = dao.getByPrimaryKeys(
                 Arrays.asList(
                         entity2.getCreateTime(),
                         entity2.getEnvironment(),
                         entity2.getCluster(),
                         entity2.getSubmissionId()),
-                SparkApplicationSubmissionDbEntity.class);
+                SparkApplicationSubmissionEntity.class);
 
         Assert.assertEquals(entity2.getCreateTime(), readback2.getCreateTime());
         Assert.assertEquals(entity2.getEnvironment(), readback2.getEnvironment());
@@ -78,7 +78,7 @@ public class SparkApplicationSubmissionDaoTest {
                         entity2.getEnvironment(),
                         entity2.getCluster(),
                         entity2.getSubmissionId()),
-                SparkApplicationSubmissionDbEntity.class);
+                SparkApplicationSubmissionEntity.class);
 
         Assert.assertEquals(entity2.getCreateTime(), readback2.getCreateTime());
         Assert.assertEquals(entity2.getEnvironment(), readback2.getEnvironment());

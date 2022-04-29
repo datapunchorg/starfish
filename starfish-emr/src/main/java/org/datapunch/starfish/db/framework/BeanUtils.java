@@ -16,7 +16,7 @@
 
 // This file is copied and modified from https://github.com/uber-common/jvm-profiler/tree/b54894d8a6da9e5bf73da652a92121fd44882722/src/main/java_jdbc/com/uber/profiling/reporters/util/
 
-package org.datapunch.starfish.db;
+package org.datapunch.starfish.db.framework;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;

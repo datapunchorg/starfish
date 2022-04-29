@@ -20,14 +20,14 @@ public class QueueDaoTest {
         dao.createTable(false);
         dao.queryColumns(1000, "*");
 
-        QueueDbEntity entity1 = new QueueDbEntity();
+        QueueEntity entity1 = new QueueEntity();
         entity1.setName("name01");
         entity1.setWeight(100);
         entity1.setCluster("cluster01");
 
         dao.insertOrUpdate(entity1);
 
-        QueueDbEntity entity2 = new QueueDbEntity();
+        QueueEntity entity2 = new QueueEntity();
         entity2.setName("name02");
         entity2.setWeight(50);
         entity2.setCluster("cluster02");
@@ -36,29 +36,29 @@ public class QueueDaoTest {
 
         Assert.assertEquals(2, dao.getTotalCount());
 
-        QueueDbEntity readback1 = dao.getByPrimaryKeys(
+        QueueEntity readback1 = dao.getByPrimaryKeys(
                 Arrays.asList(
                         entity1.getEnvironment(),
                         entity1.getName()),
-                QueueDbEntity.class);
+                QueueEntity.class);
 
         Assert.assertEquals(entity1.getEnvironment(), readback1.getEnvironment());
         Assert.assertEquals(entity1.getName(), readback1.getName());
         Assert.assertEquals(entity1.getWeight(), readback1.getWeight());
         Assert.assertEquals(entity1.getCluster(), readback1.getCluster());
 
-        QueueDbEntity readback2 = dao.getByPrimaryKeys(
+        QueueEntity readback2 = dao.getByPrimaryKeys(
                 Arrays.asList(
                         entity2.getEnvironment(),
                         entity2.getName()),
-                QueueDbEntity.class);
+                QueueEntity.class);
 
         Assert.assertEquals(entity2.getEnvironment(), readback2.getEnvironment());
         Assert.assertEquals(entity2.getName(), readback2.getName());
         Assert.assertEquals(entity2.getWeight(), readback2.getWeight());
         Assert.assertEquals(entity2.getCluster(), readback2.getCluster());
 
-        entity2 = new QueueDbEntity();
+        entity2 = new QueueEntity();
         entity2.setName("name02");
         entity2.setWeight(100);
         entity2.setCluster("cluster03");
@@ -71,7 +71,7 @@ public class QueueDaoTest {
                 Arrays.asList(
                         entity2.getEnvironment(),
                         entity2.getName()),
-                QueueDbEntity.class);
+                QueueEntity.class);
 
         Assert.assertEquals(entity2.getEnvironment(), readback2.getEnvironment());
         Assert.assertEquals(entity2.getName(), readback2.getName());

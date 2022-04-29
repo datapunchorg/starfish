@@ -1,6 +1,6 @@
 package org.datapunch.starfish.db;
 
-public class QueueDbEntity {
+public class QueueEntity {
     private String environment = "default";
     private String name;
     private Integer weight;

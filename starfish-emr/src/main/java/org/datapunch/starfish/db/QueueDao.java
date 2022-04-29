@@ -1,5 +1,7 @@
 package org.datapunch.starfish.db;
 
+import org.datapunch.starfish.db.framework.BaseJdbcDao;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +22,7 @@ public class QueueDao extends BaseJdbcDao {
         super(
                 jdbcDriverClass,
                 connectionString,
-                QueueDbEntity.class,
+                QueueEntity.class,
                 tableName,
                 PARTITION_KEY,
                 Arrays.asList(PRIMARY_KEYS),
@@ -29,7 +31,7 @@ public class QueueDao extends BaseJdbcDao {
                 Arrays.asList(TEXT_COLUMNS));
     }
 
-    public void insertOrUpdate(QueueDbEntity entity) {
+    public void insertOrUpdate(QueueEntity entity) {
         Map map = new HashMap();
         map.put("environment", entity.getEnvironment());
         map.put("name", entity.getName());
