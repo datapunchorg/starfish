@@ -1,6 +1,7 @@
 package org.datapunch.starfish.db;
 
 import org.datapunch.starfish.db.framework.ConnectionInfo;
+import org.datapunch.starfish.util.StringUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -15,6 +16,9 @@ public class SparkApplicationSubmissionDaoIT {
         String connectionString = "jdbc:postgresql://localhost:5432/postgres";
         String user = "postgres";
         String password = System.getenv("INTEGRATION_TEST_POSTGRESQL_PASSWORD");
+        if (StringUtil.isNullOrEmpty(password)) {
+            return;
+        }
 
         ConnectionInfo connectionInfo = new ConnectionInfo(connectionString, user, password);
 
