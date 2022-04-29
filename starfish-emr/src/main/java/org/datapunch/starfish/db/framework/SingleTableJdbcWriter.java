@@ -175,7 +175,8 @@ public class SingleTableJdbcWriter implements AutoCloseable {
                         StringUtils.join(nonNullFields, ", "),
                         StringUtils.join(Collections.nCopies(nonNullFields.size(), "?"), ", "),
                         StringUtils.join(updateList, ", "));
-        if (dbType != null && dbType.equalsIgnoreCase("postgresql")) {
+        boolean postgresqlMode = dbType != null && dbType.equalsIgnoreCase("postgresql");
+        if (postgresqlMode) {
             updateList = new ArrayList<>();
             for (int i = 0; i < nonNullFields.size(); i++) {
                 String field = nonNullFields.get(i);
@@ -204,16 +205,18 @@ public class SingleTableJdbcWriter implements AutoCloseable {
                     stmt.setObject(i + 1, nonNullValues.get(i));
                 }
             }
-            for (int i = 0; i < nonNullValues.size(); i++) {
-                if (timestampColumnsLowerCase.contains(nonNullFields.get(i).toLowerCase())) {
-                    stmt.setTimestamp(
-                            nonNullValues.size() + i + 1, JdbcUtils.getSqlTimestamp(nonNullValues.get(i)));
-                } else if (textColumnsLowerCase.contains(nonNullFields.get(i).toLowerCase())) {
-                    Clob clob = connection.createClob();
-                    clob.setString(1, nonNullValues.get(i).toString());
-                    stmt.setClob(nonNullValues.size() + i + 1, clob);
-                } else {
-                    stmt.setObject(nonNullValues.size() + i + 1, nonNullValues.get(i));
+            if (!postgresqlMode) {
+                for (int i = 0; i < nonNullValues.size(); i++) {
+                    if (timestampColumnsLowerCase.contains(nonNullFields.get(i).toLowerCase())) {
+                        stmt.setTimestamp(
+                                nonNullValues.size() + i + 1, JdbcUtils.getSqlTimestamp(nonNullValues.get(i)));
+                    } else if (textColumnsLowerCase.contains(nonNullFields.get(i).toLowerCase())) {
+                        Clob clob = connection.createClob();
+                        clob.setString(1, nonNullValues.get(i).toString());
+                        stmt.setClob(nonNullValues.size() + i + 1, clob);
+                    } else {
+                        stmt.setObject(nonNullValues.size() + i + 1, nonNullValues.get(i));
+                    }
                 }
             }
             stmt.executeUpdate();

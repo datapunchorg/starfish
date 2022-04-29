@@ -567,7 +567,7 @@ public abstract class BaseJdbcDao implements AutoCloseable {
 
     private boolean isPostgreSQL() {
         String str = connectionProvider.getConnectionString().toLowerCase();
-        if (str.startsWith("postgre") || str.contains("MODE=PostgreSQL".toLowerCase())) {
+        if (str.startsWith("jdbc:postgre") || str.startsWith("postgre") || str.contains("MODE=PostgreSQL".toLowerCase())) {
             return true;
         } else {
             return false;

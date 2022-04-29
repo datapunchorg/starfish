@@ -201,7 +201,7 @@ public class JdbcUtils {
     }
 
     public static String getCreateIndexSql(String tableName, String column) {
-        String sql = String.format("CREATE INDEX idx_%s ON %s(%s)", column, tableName, column);
+        String sql = String.format("CREATE INDEX IF NOT EXISTS idx_%s ON %s(%s)", column, tableName, column);
         return sql;
     }
 

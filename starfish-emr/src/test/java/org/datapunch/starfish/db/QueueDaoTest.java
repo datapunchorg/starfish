@@ -14,7 +14,7 @@ public class QueueDaoTest {
         file.deleteOnExit();
 
         String connectionString =
-                String.format("jdbc:h2:%s;DB_CLOSE_DELAY=-1;MODE=PostgreSQL", file.getAbsolutePath());
+                String.format("jdbc:h2:%s;DB_CLOSE_DELAY=-1;MODE=MySQL", file.getAbsolutePath());
 
         QueueDao dao = new QueueDao("org.h2.Driver", connectionString, "test_QueueDao_table");
         dao.createTable(false);
