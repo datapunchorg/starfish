@@ -25,7 +25,6 @@ Install `jq` to parse JSON response from `curl` command:
 
 ```
 brew install jq
-
 ```
 
 Send requests to the server using `curl`:

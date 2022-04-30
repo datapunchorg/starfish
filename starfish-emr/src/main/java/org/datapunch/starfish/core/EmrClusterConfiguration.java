@@ -11,7 +11,10 @@ public class EmrClusterConfiguration {
     private String logUri;
 
     private String serviceRoleName;
+
+    // IAM role for EC2 instances in EMR cluster
     private String jobFlowRoleName;
+
     private String masterInstanceType;
     private String slaveInstanceType;
 
